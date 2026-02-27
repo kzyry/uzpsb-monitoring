@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Акт целевого использования</title>
+    <link href="https://cdn.jsdelivr.net/npm/vuetify@3.4.0/dist/vuetify.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/@mdi/font@7.3.67/css/materialdesignicons.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="src/styles/base.css" rel="stylesheet">
+</head>
+<body>
+    <div id="app">
+        <div class="main-container">
+            <!-- Top: page tabs -->
+            <div class="top-section">
+                <div class="page-tabs">
+                    <div v-for="(tab, i) in pageTabs" :key="i"
+                         :class="['page-tab', { active: tab.active }]"
+                         @click="pageTabs.forEach((t, idx) => t.active = idx === i)">
+                        {{ tab.label }}
+                        <svg class="close-icon" viewBox="0 0 10 10" @click.stop="pageTabs.splice(i, 1)">
+                            <line x1="1" y1="1" x2="9" y2="9" stroke="currentColor" stroke-width="1.5"/>
+                            <line x1="9" y1="1" x2="1" y2="9" stroke="currentColor" stroke-width="1.5"/>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Act header -->
+            <div class="act-header">
+                <div class="act-header-top">
+                    <div class="back-btn" @click="goBack">
+                        <img src="src/assets/icons/icon-arrow-back.svg" width="17" height="15" alt="">
+                    </div>
+                    <h1>Акт целевого использования. Кредит ID test5</h1>
+                </div>
+                <div class="act-status-row">
+                    <span class="act-status-label">Статус: {{ actStatus }}</span>
+                    <div class="progress-group">
+                        <span class="progress-label">Заполнено:</span>
+                        <div class="progress-bar">
+                            <div class="progress-fill" :style="{ width: actProgress + '%' }"></div>
+                        </div>
+                        <span class="progress-percent">{{ actProgress }}%</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar + Content -->
+            <div class="act-layout">
+                <!-- Sidebar -->
+                <div class="act-sidebar">
+                    <div class="act-sidebar-title">Разделы</div>
+                    <div v-for="(section, i) in sections" :key="i"
+                         :class="['act-sidebar-item', { active: activeSection === i }]"
+                         @click="activeSection = i">
+                        {{ i + 1 }}. {{ section }}
+                    </div>
+                </div>
+
+                <!-- Content -->
+                <div class="act-content">
+
+                    <!-- Section 1: Сведения о заёмщике -->
+                    <template v-if="activeSection === 0">
+                        <div class="section-title">Сведения о заёмщике</div>
+                        <div class="fields-section" style="border: none; padding: 0;">
+                            <div class="field-row">
+                                <field-input label="Наименование заёмщика" v-model="borrower.name"></field-input>
+                                <field-input label="ИНН" v-model="borrower.inn"></field-input>
+                                <field-input label="Сегмент" v-model="borrower.segment"></field-input>
+                            </div>
+                            <div class="field-row">
+                                <field-input label="Адрес" v-model="borrower.address"></field-input>
+                                <field-input label="Вид деятельности" v-model="borrower.activity"></field-input>
+                                <field-input label="Код ОКОНХ" v-model="borrower.okonh"></field-input>
+                            </div>
+                        </div>
+                    </template>
+
+                    <!-- Section 2: Сведения о кредите -->
+                    <template v-if="activeSection === 1">
+                        <div class="section-title">Сведения о кредите</div>
+                        <div class="fields-section" style="border: none; padding: 0;">
+                            <div class="field-row">
+                                <field-input label="Наименование банка" v-model="credit.bank"></field-input>
+                                <field-input label="Номер кредитного договора" v-model="credit.contractNumber"></field-input>
+                                <field-date label="Дата договора" v-model="credit.contractDate"></field-date>
+                            </div>
+                            <div class="field-row">
+                                <div class="field-box">
+                                    <field-input label="Сумма кредита" v-model="credit.amount"></field-input>
+                                    <field-input label="Валюта" v-model="credit.currency"></field-input>
+                                </div>
+                                <field-date label="Дата выдачи" v-model="credit.issueDate"></field-date>
+                                <field-date label="Дата погашения" v-model="credit.maturityDate"></field-date>
+                            </div>
+                            <div class="field-row">
+                                <field-input label="Цель кредита" v-model="credit.purpose"></field-input>
+                                <field-input label="Процентная ставка" v-model="credit.rate"></field-input>
+                                <field-date label="Дата ввода проекта" v-model="credit.projectDate" editable></field-date>
+                            </div>
+                            <div class="field-row">
+                                <field-input label="Рабочие места (план)" v-model="credit.jobsPlan" editable></field-input>
+                                <field-input label="Рабочие места (факт)" v-model="credit.jobsFact" editable></field-input>
+                                <div class="field-group"></div>
+                            </div>
+                            <div class="field-row" v-if="Number(credit.jobsFact) < Number(credit.jobsPlan)">
+                                <field-input label="Причина несоздания рабочих мест" v-model="credit.jobsReason" editable textarea required></field-input>
+                            </div>
+                        </div>
+                    </template>
+
+                    <!-- Section 3: Использование средств -->
+                    <template v-if="activeSection === 2">
+                        <div class="section-title">Использование средств</div>
+
+                        <app-table title="Договоры поставки"
+                            :columns="supplyColumns" :rows="supplyRows" empty-text="Нет записей"></app-table>
+
+                        <app-table title="Полученные товары"
+                            :columns="goodsColumns" :rows="goodsRows" empty-text="Нет записей"></app-table>
+
+                        <app-table title="Использование оборудования"
+                            :columns="equipColumns" :rows="equipRows" empty-text="Нет записей"></app-table>
+
+                        <div class="fields-section" style="border: none; padding: 0;" v-if="hasUnusedEquipment">
+                            <div class="field-row">
+                                <field-input label="Причины неиспользования оборудования" v-model="results.unusedReason" editable textarea required></field-input>
+                            </div>
+                        </div>
+                    </template>
+
+                    <!-- Section 4: Результаты -->
+                    <template v-if="activeSection === 3">
+                        <div class="section-title">Результаты</div>
+                        <div class="fields-section" style="border: none; padding: 0;">
+                            <div class="field-row">
+                                <field-input label="Фактическое использование кредитных средств" v-model="results.factUsage" editable textarea></field-input>
+                            </div>
+                            <div class="field-row">
+                                <field-input label="Фотоматериалы" v-model="results.photos" editable></field-input>
+                                <div class="field-group"></div>
+                                <div class="field-group"></div>
+                            </div>
+                            <div class="field-row">
+                                <field-input label="Выявленные обстоятельства" v-model="results.findings" editable textarea></field-input>
+                            </div>
+                            <div class="field-row">
+                                <field-input label="Заключение" v-model="results.conclusion" editable textarea></field-input>
+                            </div>
+                        </div>
+                    </template>
+
+                </div>
+            </div>
+
+            <!-- Bottom buttons -->
+            <div class="action-buttons">
+                <app-btn label="Сохранить" primary @click="onSave"></app-btn>
+                <app-btn label="Сформировать документ" @click="onGenerate"></app-btn>
+                <app-btn label="Назад" @click="goBack"></app-btn>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/vue@3.3.0/dist/vue.global.prod.js"></script>
+    <script src="src/components/components.js"></script>
+    <script>
+        const { createApp, ref, reactive, computed } = Vue;
+
+        const app = createApp({
+            setup() {
+                const pageTabs = ref([
+                    { label: 'Акт ЦИ — test5', active: true }
+                ]);
+
+                // Sidebar sections
+                const sections = [
+                    'Сведения о заёмщике',
+                    'Сведения о кредите',
+                    'Использование средств',
+                    'Результаты'
+                ];
+                const activeSection = ref(0);
+
+                const actStatus = ref('В работе');
+                const actProgress = ref(45);
+
+                // Section 1: Borrower info (readonly)
+                const borrower = reactive({
+                    name: 'test1',
+                    inn: '123456789',
+                    segment: 'Малый бизнес',
+                    address: 'г. Ташкент, ул. Примерная, 1',
+                    activity: 'Торговля',
+                    okonh: '51000'
+                });
+
+                // Section 2: Credit info (mix readonly + editable)
+                const credit = reactive({
+                    bank: 'УзПСБ',
+                    contractNumber: '91000',
+                    contractDate: '02.11.2021',
+                    amount: '800 000.00',
+                    currency: 'UZS',
+                    issueDate: '02.11.2021',
+                    maturityDate: '02.11.2022',
+                    purpose: 'Пополнение оборотных средств',
+                    rate: '22%',
+                    projectDate: '',
+                    jobsPlan: '10',
+                    jobsFact: '7',
+                    jobsReason: ''
+                });
+
+                // Section 3: Tables
+                const supplyColumns = [
+                    { key: 'supplier', label: 'Поставщик' },
+                    { key: 'contractNum', label: '№ договора' },
+                    { key: 'contractDate', label: 'Дата договора' },
+                    { key: 'amount', label: 'Сумма договора' },
+                    { key: 'purpose', label: 'Цель' },
+                    { key: 'deliveryDate', label: 'Срок поставки' }
+                ];
+                const supplyRows = ref([]);
+
+                const goodsColumns = [
+                    { key: 'supplier', label: 'Поставщик' },
+                    { key: 'invoiceNum', label: '№ счета-фактуры' },
+                    { key: 'invoiceDate', label: 'Дата счета-фактуры' },
+                    { key: 'product', label: 'Продукция' },
+                    { key: 'qty', label: 'Количество' },
+                    { key: 'price', label: 'Цена' },
+                    { key: 'total', label: 'Общая сумма' }
+                ];
+                const goodsRows = ref([]);
+
+                const equipColumns = [
+                    { key: 'acquired', label: 'Приобретенная продукция' },
+                    { key: 'supplied', label: 'Поставленная продукция' },
+                    { key: 'qty', label: 'Количество' },
+                    { key: 'amount', label: 'Сумма' },
+                    { key: 'inUse', label: 'Используется' },
+                    { key: 'absent', label: 'Отсутствует' },
+                    { key: 'notUsed', label: 'Не используется' }
+                ];
+                const equipRows = ref([]);
+
+                // Conditional: show reason if any equipment is unused
+                const hasUnusedEquipment = computed(() => {
+                    return equipRows.value.some(r => Number(r.notUsed) > 0);
+                });
+
+                // Section 4: Results (editable textareas)
+                const results = reactive({
+                    factUsage: '',
+                    photos: '',
+                    findings: '',
+                    conclusion: '',
+                    unusedReason: ''
+                });
+
+                function goBack() {
+                    window.location.href = 'task_monitoring.html';
+                }
+                function onSave() {
+                    alert('Акт сохранён');
+                }
+                function onGenerate() {
+                    alert('Формирование документа...');
+                }
+
+                return {
+                    pageTabs,
+                    sections, activeSection,
+                    actStatus, actProgress,
+                    borrower, credit,
+                    supplyColumns, supplyRows,
+                    goodsColumns, goodsRows,
+                    equipColumns, equipRows,
+                    hasUnusedEquipment,
+                    results,
+                    goBack, onSave, onGenerate
+                };
+            }
+        });
+
+        UzComponents.registerAll(app);
+        app.mount('#app');
+    </script>
+</body>
+</html>

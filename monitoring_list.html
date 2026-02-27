@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Мониторинг — Список задач</title>
+    <link href="https://cdn.jsdelivr.net/npm/vuetify@3.4.0/dist/vuetify.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/@mdi/font@7.3.67/css/materialdesignicons.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="src/styles/base.css" rel="stylesheet">
+</head>
+<body>
+    <div id="app">
+        <div class="main-container">
+            <!-- Page tabs -->
+            <div class="page-tabs">
+                <div v-for="(tab, i) in pageTabs" :key="i"
+                     :class="['page-tab', { active: tab.active }]"
+                     @click="pageTabs.forEach((t, idx) => t.active = idx === i)">
+                    {{ tab.label }}
+                    <svg class="close-icon" viewBox="0 0 10 10" @click.stop="pageTabs.splice(i, 1)">
+                        <line x1="1" y1="1" x2="9" y2="9" stroke="currentColor" stroke-width="1.5"/>
+                        <line x1="9" y1="1" x2="1" y2="9" stroke="currentColor" stroke-width="1.5"/>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- Filter section -->
+            <div class="filter-section">
+                <div class="field-row">
+                    <field-select label="Статус задачи" v-model="filters.status" editable
+                        :options="['Новая', 'Взята в работу', 'На доработке', 'Требует акцепта', 'В ожидании']"></field-select>
+                    <field-select label="Тип задачи" v-model="filters.taskType" editable
+                        :options="['Задача мониторинга', 'Задача выездного мониторинга', 'Обработка сигнала КАД/ЦПФ']"></field-select>
+                    <field-date label="Дата создания от" v-model="filters.dateFrom" editable></field-date>
+                    <field-date label="Дата создания до" v-model="filters.dateTo" editable></field-date>
+                </div>
+                <div class="field-row">
+                    <field-select label="Вид мониторинга" v-model="filters.monitoringType" editable
+                        :options="['Мониторинг условий', 'Мониторинг кредитного обеспечения', 'Инспекционный']"></field-select>
+                    <field-select label="Исполнитель" v-model="filters.executor" editable
+                        :options="['Lev Aleksandrovich Medvedev', 'Maria M Ivanlova', 'Dariya V Zakharova']"></field-select>
+                    <field-select label="Проверяющий" v-model="filters.reviewer" editable
+                        :options="[]"></field-select>
+                    <field-input label="ID договора" v-model="filters.contractId" editable></field-input>
+                </div>
+                <div class="field-row">
+                    <field-select label="Тип клиента" v-model="filters.clientType" editable
+                        :options="['ФЛ', 'ЮЛ', 'ИП']"></field-select>
+                    <field-input label="ФИО" v-model="filters.fio" editable></field-input>
+                    <field-input label="Наименование ЮЛ" v-model="filters.orgName" editable></field-input>
+                    <field-input label="Наименование залога" v-model="filters.collateralName" editable></field-input>
+                </div>
+                <div class="field-row">
+                    <field-select label="Вид сигнала" v-model="filters.signalType" editable
+                        :options="[]"></field-select>
+                    <field-input label="Номер задачи" v-model="filters.taskNumber" editable></field-input>
+                    <field-input label="ID Обеспечения" v-model="filters.collateralId" editable></field-input>
+                    <field-select label="Отделение" v-model="filters.branch" editable
+                        :options="['Жилзавод минтака']"></field-select>
+                </div>
+                <div class="filter-buttons">
+                    <app-btn label="Сбросить" @click="resetFilters"></app-btn>
+                    <app-btn label="Применить" primary @click="applyFilters"></app-btn>
+                </div>
+            </div>
+
+            <!-- Main data table -->
+            <div class="main-table-container">
+                <table class="main-table">
+                    <thead>
+                        <tr>
+                            <th v-for="col in columns" :key="col.key">
+                                <div class="th-content">
+                                    <span>{{ col.label }}</span>
+                                    <svg width="8" height="14" viewBox="0 0 8 14" fill="none">
+                                        <path d="M4 0L7.5 4H0.5L4 0Z" fill="#8a8894"/>
+                                        <path d="M4 14L0.5 10H7.5L4 14Z" fill="#8a8894"/>
+                                    </svg>
+                                </div>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="(row, i) in pagedRows" :key="i"
+                            :class="{ 'row-alert': row.status !== 'Взята в работу' }"
+                            @click="openTask(row)">
+                            <td>{{ row.num }}</td>
+                            <td>{{ row.dateCreated }}</td>
+                            <td>{{ row.taskType }}</td>
+                            <td>{{ row.monitoring }}</td>
+                            <td>{{ row.deadline }}</td>
+                            <td>{{ row.status }}</td>
+                            <td>{{ row.object }}</td>
+                            <td>{{ row.credit }}</td>
+                            <td>{{ row.executor }}</td>
+                            <td>{{ row.reviewer }}</td>
+                            <td>{{ row.id }}</td>
+                            <td>{{ row.idObesp }}</td>
+                            <td>{{ row.branch }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Footer: export + pagination -->
+            <div class="table-footer-bar">
+                <div class="export-btn" @click="exportExcel">
+                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                        <path d="M7 1v8M7 9L4 6m3 3l3-3M2 11h10" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    Выгрузить в Excel
+                </div>
+                <div class="pagination">
+                    <span class="pagination-info">Строк {{ pageStart }} – {{ pageEnd }} из {{ totalRows }}</span>
+                    <div class="pagination-btn nav" @click="prevPage">&lt;</div>
+                    <div v-for="p in totalPages" :key="p"
+                         :class="['pagination-btn', { active: currentPage === p }]"
+                         @click="currentPage = p">{{ p }}</div>
+                    <div class="pagination-btn nav" @click="nextPage">&gt;</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/vue@3.3.0/dist/vue.global.prod.js"></script>
+    <script src="src/components/components.js"></script>
+    <script>
+        const { createApp, ref, reactive, computed } = Vue;
+
+        const app = createApp({
+            setup() {
+                const pageTabs = ref([
+                    { label: '№ 12', active: true },
+                    { label: '№ 199', active: false }
+                ]);
+
+                // Filters
+                const filters = reactive({
+                    status: 'Новая, Взята в работу, На доработке, Требует акцепта, В ожидании',
+                    taskType: '',
+                    dateFrom: '',
+                    dateTo: '',
+                    monitoringType: '',
+                    executor: '',
+                    reviewer: '',
+                    contractId: '',
+                    clientType: '',
+                    fio: '',
+                    orgName: '',
+                    collateralName: '',
+                    signalType: '',
+                    taskNumber: '',
+                    collateralId: '',
+                    branch: ''
+                });
+
+                function resetFilters() {
+                    Object.keys(filters).forEach(k => { filters[k] = ''; });
+                }
+                function applyFilters() {
+                    alert('Фильтры применены');
+                }
+
+                // Table columns
+                const columns = [
+                    { key: 'num', label: 'Номер' },
+                    { key: 'dateCreated', label: 'Дата создания' },
+                    { key: 'taskType', label: 'Тип задачи' },
+                    { key: 'monitoring', label: 'Вид мониторинга/сигнала' },
+                    { key: 'deadline', label: 'Срок выполнения' },
+                    { key: 'status', label: 'Статус задачи' },
+                    { key: 'object', label: 'Объект мониторинга' },
+                    { key: 'credit', label: 'Кредит/Клиент/Обеспечение/Бизнес-план' },
+                    { key: 'executor', label: 'Исполнитель' },
+                    { key: 'reviewer', label: 'Проверяющий' },
+                    { key: 'id', label: 'ID' },
+                    { key: 'idObesp', label: 'ID Обеспечений' },
+                    { key: 'branch', label: 'Отделение' }
+                ];
+
+                // Table data
+                const allRows = ref([
+                    { num: 12, dateCreated: '05.11.2025', taskType: 'Задача выездного мониторинга', monitoring: 'Мониторинг кредитного обеспечения', deadline: '19.11.2025', status: 'Новая', object: 'Обеспечение', credit: 'недвижимость', executor: 'Эржена З З', reviewer: '', id: 'test4', idObesp: '', branch: 'Жилзавод минтака' },
+                    { num: 13, dateCreated: '05.11.2025', taskType: 'Задача выездного мониторинга', monitoring: 'Мониторинг кредитного обеспечения', deadline: '19.11.2025', status: 'Новая', object: 'Обеспечение', credit: 'недвижимость', executor: 'Javoxir Sodiq og\'li Sobirov', reviewer: '', id: 'test3', idObesp: '', branch: 'Жилзавод минтака' },
+                    { num: 14, dateCreated: '05.11.2025', taskType: 'Задача выездного мониторинга', monitoring: 'Мониторинг кредитного обеспечения', deadline: '19.11.2025', status: 'Новая', object: 'Обеспечение', credit: 'недвижимость', executor: 'КАД В Захарова', reviewer: '', id: 'test2', idObesp: '', branch: 'Жилзавод минтака' },
+                    { num: 15, dateCreated: '05.11.2025', taskType: 'Задача выездного мониторинга', monitoring: 'Мониторинг кредитного обеспечения', deadline: '19.11.2025', status: 'Новая', object: 'Обеспечение', credit: 'недвижимость', executor: 'kad_test kad_test kad_test', reviewer: '', id: 'test1', idObesp: '', branch: 'Жилзавод минтака' },
+                    { num: 158, dateCreated: '11.11.2025', taskType: 'Задача выездного мониторинга', monitoring: 'Инспекционный', deadline: '25.11.2025', status: 'Новая', object: 'Клиент', credit: 'test1', executor: '', reviewer: '', id: '', idObesp: '', branch: 'Жилзавод минтака' },
+                    { num: 194, dateCreated: '12.11.2025', taskType: 'Задача мониторинга', monitoring: 'Мониторинг условий', deadline: '24.12.2025', status: 'Новая', object: 'Кредит', credit: 'test3', executor: 'Lev Aleksandrovich Medvedev', reviewer: '', id: '', idObesp: '', branch: 'Жилзавод минтака' },
+                    { num: 199, dateCreated: '12.11.2025', taskType: 'Задача мониторинга', monitoring: 'Мониторинг условий', deadline: '24.12.2025', status: 'Взята в работу', object: 'Кредит', credit: 'test5', executor: 'Lev Aleksandrovich Medvedev', reviewer: '', id: '', idObesp: '', branch: 'Жилзавод минтака' },
+                    { num: 200, dateCreated: '12.11.2025', taskType: 'Задача мониторинга', monitoring: 'Мониторинг условий', deadline: '24.12.2025', status: 'Новая', object: 'Кредит', credit: 'test5', executor: 'Lev Aleksandrovich Medvedev', reviewer: '', id: '', idObesp: '', branch: 'Жилзавод минтака' },
+                    { num: 202, dateCreated: '12.11.2025', taskType: 'Задача мониторинга', monitoring: 'Мониторинг условий', deadline: '24.12.2025', status: 'Новая', object: 'Кредит', credit: 'test6', executor: 'Maria M Ivanlova', reviewer: '', id: '', idObesp: '', branch: 'Жилзавод минтака' },
+                    { num: 203, dateCreated: '12.11.2025', taskType: 'Задача мониторинга', monitoring: 'Мониторинг условий', deadline: '24.12.2025', status: 'Новая', object: 'Кредит', credit: 'test6', executor: 'Maria M Ivanlova', reviewer: '', id: '', idObesp: '', branch: '' },
+                    { num: 219, dateCreated: '13.11.2025', taskType: 'Обработка сигнала КАД/ЦПФ', monitoring: 'Нет заработной платы в течение трех месяцев', deadline: '25.12.2025', status: 'Требует акцепта', object: 'Клиент', credit: 'Kurbatov Maksim 91000', executor: 'Lev Aleksandrovich Medvedev', reviewer: 'Сотрудник ЦПФ ЦПФ', id: '', idObesp: '', branch: '' },
+                    { num: 221, dateCreated: '13.11.2025', taskType: 'Задача мониторинга', monitoring: 'Мониторинг кредитного обеспечения', deadline: '27.11.2025', status: 'Взята в работу', object: 'Обеспечение', credit: 'Оборудование', executor: 'Lev Aleksandrovich Medvedev', reviewer: '', id: '', idObesp: '534534', branch: 'Жилзавод минтака' },
+                    { num: 222, dateCreated: '13.11.2025', taskType: 'Задача мониторинга', monitoring: 'Мониторинг кредитного обеспечения', deadline: '27.11.2025', status: 'Взята в работу', object: 'Обеспечение', credit: 'Товары в обороте 1', executor: 'Дарья dzaikharova Захарова', reviewer: '', id: '', idObesp: 'goods123', branch: 'Жилзавод минтака' },
+                    { num: 223, dateCreated: '13.11.2025', taskType: 'Задача мониторинга', monitoring: 'Мониторинг кредитного обеспечения', deadline: '27.11.2025', status: 'Взята в работу', object: 'Обеспечение', credit: 'Товары в обороте 1', executor: 'Иван Админ Климов', reviewer: '', id: '', idObesp: 'goods123', branch: 'Жилзавод минтака' },
+                    { num: 224, dateCreated: '13.11.2025', taskType: 'Задача мониторинга', monitoring: 'Мониторинг кредитного обеспечения', deadline: '27.11.2025', status: 'Взята в работу', object: 'Обеспечение', credit: 'Автомобиль Renault Logan', executor: 'Климович Павел Анатольевич', reviewer: '', id: '', idObesp: '123321123', branch: 'Жилзавод минтака' },
+                    { num: 239, dateCreated: '14.11.2025', taskType: 'Задача мониторинга', monitoring: 'Мониторинг кредитного обеспечения', deadline: '28.11.2025', status: 'Взята в работу', object: 'Обеспечение', credit: 'Недвижимость Дом', executor: 'Lev Aleksandrovich Medvedev', reviewer: '', id: '', idObesp: '10999', branch: 'Жилзавод минтака' },
+                    { num: 242, dateCreated: '14.11.2025', taskType: 'Задача мониторинга', monitoring: 'Мониторинг кредитного обеспечения', deadline: '28.11.2025', status: 'Взята в работу', object: 'Обеспечение', credit: 'Автомобиль Renault Logan', executor: 'Дарья Администратор Захарова', reviewer: '', id: '', idObesp: '123321123', branch: 'Жилзавод минтака' },
+                    { num: 260, dateCreated: '17.11.2025', taskType: 'Задача мониторинга', monitoring: 'Мониторинг кредитного обеспечения', deadline: '29.12.2025', status: 'Взята в работу', object: 'Обеспечение', credit: 'Автомобиль Renault Logan', executor: 'Maria M Ivanlova', reviewer: '', id: '', idObesp: '123321123', branch: 'Жилзавод минтака' },
+                    { num: 265, dateCreated: '20.11.2025', taskType: 'Обработка сигнала КАД/ЦПФ', monitoring: 'Наличие дополнительного кредита', deadline: '01.01.2026', status: 'Требует акцепта', object: 'Клиент', credit: 'Kurbatov Maksim 91026', executor: 'Lev Aleksandrovich Medvedev', reviewer: 'Сотрудник ЦПФ ЦПФ', id: '', idObesp: '', branch: '' },
+                    { num: 271, dateCreated: '21.11.2025', taskType: 'Задача мониторинга', monitoring: 'Мониторинг условий', deadline: '02.01.2026', status: 'Новая', object: 'Кредит', credit: 'test9', executor: 'Dariya V Zakharova', reviewer: '', id: '', idObesp: '', branch: 'Жилзавод минтака' },
+                    { num: 294, dateCreated: '25.11.2025', taskType: 'Задача выездного мониторинга', monitoring: 'Мониторинг кредитного обеспечения', deadline: '09.12.2025', status: 'Новая', object: 'Обеспечение', credit: 'недвижимость', executor: 'Jaloladdin Kamoladdin og\'li Seypanov', reviewer: '', id: 'test1', idObesp: '', branch: 'Жилзавод минтака' },
+                    { num: 308, dateCreated: '25.11.2025', taskType: 'Задача мониторинга', monitoring: 'Мониторинг условий', deadline: '06.01.2026', status: 'Новая', object: 'Кредит', credit: 'test8', executor: 'Lev Aleksandrovich Medvedev', reviewer: '', id: '', idObesp: '', branch: '' },
+                    { num: 31, dateCreated: '06.11.2025', taskType: 'Задача мониторинга', monitoring: 'Мониторинг кредитного обеспечения', deadline: '20.11.2025', status: 'Взята в работу', object: 'Обеспечение', credit: 'недвижимость', executor: 'Lev Aleksandrovich Medvedev', reviewer: '', id: 'test1', idObesp: '', branch: 'Жилзавод минтака' },
+                    { num: 32, dateCreated: '06.11.2025', taskType: 'Задача мониторинга', monitoring: 'Мониторинг кредитного обеспечения', deadline: '20.11.2025', status: 'Взята в работу', object: 'Обеспечение', credit: 'недвижимость', executor: 'Lev Aleksandrovich Medvedev', reviewer: '', id: 'test4', idObesp: '', branch: 'Жилзавод минтака' },
+                    { num: 33, dateCreated: '06.11.2025', taskType: 'Задача мониторинга', monitoring: 'Мониторинг кредитного обеспечения', deadline: '20.11.2025', status: 'Взята в работу', object: 'Обеспечение', credit: 'недвижимость', executor: 'Lev Aleksandrovich Medvedev', reviewer: '', id: 'test3', idObesp: '', branch: 'Жилзавод минтака' }
+                ]);
+
+                // Pagination
+                const perPage = 25;
+                const currentPage = ref(1);
+                const totalRows = computed(() => allRows.value.length);
+                const totalPages = computed(() => Math.ceil(totalRows.value / perPage));
+                const pageStart = computed(() => (currentPage.value - 1) * perPage + 1);
+                const pageEnd = computed(() => Math.min(currentPage.value * perPage, totalRows.value));
+                const pagedRows = computed(() => {
+                    const start = (currentPage.value - 1) * perPage;
+                    return allRows.value.slice(start, start + perPage);
+                });
+                function prevPage() { if (currentPage.value > 1) currentPage.value--; }
+                function nextPage() { if (currentPage.value < totalPages.value) currentPage.value++; }
+
+                function openTask(row) {
+                    window.location.href = 'task_monitoring.html';
+                }
+                function exportExcel() {
+                    alert('Выгрузка в Excel...');
+                }
+
+                return {
+                    pageTabs, filters, columns,
+                    allRows, pagedRows,
+                    currentPage, totalRows, totalPages, pageStart, pageEnd,
+                    prevPage, nextPage,
+                    resetFilters, applyFilters, openTask, exportExcel
+                };
+            }
+        });
+
+        UzComponents.registerAll(app);
+        app.mount('#app');
+    </script>
+</body>
+</html>

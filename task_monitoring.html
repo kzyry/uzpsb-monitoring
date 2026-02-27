@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Задача мониторинга</title>
+    <link href="https://cdn.jsdelivr.net/npm/vuetify@3.4.0/dist/vuetify.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/@mdi/font@7.3.67/css/materialdesignicons.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Design System CSS -->
+    <link href="src/styles/base.css" rel="stylesheet">
+</head>
+<body>
+    <div id="app">
+        <div class="main-container">
+            <!-- Top -->
+            <div class="top-section">
+                <div class="page-tabs">
+                    <div v-for="(tab, i) in pageTabs" :key="i"
+                         :class="['page-tab', { active: tab.active, error: tab.error }]"
+                         @click="selectPageTab(i)">
+                        {{ tab.label }}
+                        <svg class="close-icon" viewBox="0 0 10 10" @click.stop="closePageTab(i)">
+                            <line x1="1" y1="1" x2="9" y2="9" stroke="currentColor" stroke-width="1.5"/>
+                            <line x1="9" y1="1" x2="1" y2="9" stroke="currentColor" stroke-width="1.5"/>
+                        </svg>
+                    </div>
+                </div>
+                <div class="title-menu-section">
+                    <div class="title-area">
+                        <div class="back-btn" @click="goBack">
+                            <img src="src/assets/icons/icon-arrow-back.svg" width="17" height="15" alt="">
+                        </div>
+                        <h1>Задача №{{ taskData.taskNumber }}. Задача мониторинга. Кредит ID {{ taskData.creditId }}</h1>
+                    </div>
+                    <div class="nav-menu">
+                        <div v-for="(item, i) in navItems" :key="i"
+                             :class="['nav-item', { active: activeNav === i }]"
+                             @click="onNav(i)">{{ item }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 1: Task info (3 rows, 3 equal columns) -->
+            <div class="fields-section">
+                <div class="field-row">
+                    <field-input label="Номер задачи" v-model="taskData.taskNumber2"></field-input>
+                    <div class="field-box">
+                        <field-date label="Дата создания" v-model="taskData.createdDate"></field-date>
+                        <field-input label="Статус задачи" v-model="taskData.status"></field-input>
+                    </div>
+                    <field-input label="Приоритет" v-model="taskData.priority"></field-input>
+                </div>
+                <div class="field-row">
+                    <field-input label="Тип задачи" v-model="taskData.taskType"></field-input>
+                    <field-input label="Вид мониторинга" v-model="taskData.monitoringType"></field-input>
+                    <field-input label="Исполнитель" v-model="taskData.executor"></field-input>
+                </div>
+                <div class="field-row">
+                    <field-date label="Дата назначения" v-model="taskData.assignDate"></field-date>
+                    <field-date label="Срок выполнения" v-model="taskData.deadline"></field-date>
+                    <field-date label="Фактическая дата выполнения" v-model="taskData.completionDate"></field-date>
+                </div>
+            </div>
+
+            <!-- Section 2: Credit info (3 equal columns, aligned to top section) -->
+            <div class="fields-section">
+                <div class="section-title">Информация о кредите</div>
+                <div class="field-row">
+                    <div class="field-box">
+                        <field-input label="ФИО/Наименование заемщика" v-model="creditData.borrowerName"></field-input>
+                        <field-input label="Тип договора" v-model="creditData.contractType"></field-input>
+                    </div>
+                    <field-input label="Номер кредитного договора" v-model="creditData.contractNumber"></field-input>
+                    <div class="field-box">
+                        <field-date label="Дата начала договора" v-model="creditData.startDate"></field-date>
+                        <field-date label="Дата окончания договора" v-model="creditData.endDate"></field-date>
+                    </div>
+                </div>
+                <div class="field-row">
+                    <div class="field-box">
+                        <field-input label="Сумма кредита" v-model="creditData.amount"></field-input>
+                        <field-input label="Валюта" v-model="creditData.currency"></field-input>
+                    </div>
+                    <field-select label="Класс обеспечения" v-model="creditData.collateralClass"
+                        :options="['Стандартные', 'Субстандартные', 'Сомнительные']"></field-select>
+                    <field-input label="Цель кредита" v-model="creditData.purpose"></field-input>
+                </div>
+            </div>
+
+            <!-- Section 3: Monitoring conditions -->
+            <div class="fields-section">
+                <div style="display: flex; flex-direction: column; gap: 12px; padding-bottom: 16px;">
+                    <div class="section-subtitle">Мониторинг условий</div>
+                    <div class="section-subtitle" style="font-size: 16px; padding-left: 8px;">Условие КО, кредитной программы</div>
+                </div>
+                <div class="field-row" style="align-items: flex-start;">
+                    <field-input label="Условие" v-model="monitoringData.condition" textarea></field-input>
+                    <field-input label="Дата мониторинга" v-model="monitoringData.monitoringDate"></field-input>
+                </div>
+                <div class="field-row">
+                    <field-select label="Вывод" v-model="monitoringData.conclusion" required
+                        :options="['Соответствует', 'Не соответствует', 'Частично']" style="flex: 0.5;"></field-select>
+                    <div class="field-group" style="flex: 0.5;"></div>
+                </div>
+                <div class="field-row">
+                    <field-input label="Комментарий" v-model="monitoringData.comment" textarea></field-input>
+                </div>
+            </div>
+
+            <!-- Section 3.5: Акт мониторинга -->
+            <div class="fields-section">
+                <div class="section-title">Акт мониторинга</div>
+
+                <!-- State: act not created -->
+                <template v-if="actState === 'none'">
+                    <div class="field-row">
+                        <field-select label="Вид мониторинга" v-model="actData.monitoringType" editable
+                            :options="['Мониторинг целевого использования', 'Инспекционный мониторинг', 'Мониторинг обеспечения']"></field-select>
+                        <template v-if="actData.monitoringType === 'Инспекционный мониторинг'">
+                            <field-select label="Шаблон мониторинга" v-model="actData.template" editable
+                                :options="['Мониторинг кредитов на оборотные средства', 'Инвестиционный мониторинг', 'Текущий мониторинг']"></field-select>
+                        </template>
+                        <template v-else>
+                            <div class="field-group"></div>
+                        </template>
+                        <div class="field-group"></div>
+                    </div>
+                    <div v-if="actData.monitoringType === 'Мониторинг обеспечения'" style="padding: 8px 0; color: #737373; font-size: 13px;">
+                        Акт не создаётся для данного вида мониторинга.
+                    </div>
+                    <template v-if="actData.monitoringType !== 'Мониторинг обеспечения'">
+                        <div class="field-row">
+                            <field-select label="ИД кредита" v-model="actData.creditId" editable
+                                :options="['test5', 'test6', 'test7']"></field-select>
+                            <field-input label="Сумма кредита" v-model="actData.creditAmount"></field-input>
+                            <field-input label="Валюта" v-model="actData.creditCurrency"></field-input>
+                        </div>
+                        <div class="action-buttons" style="justify-content: flex-start; padding-top: 8px;">
+                            <app-btn label="Сформировать акт" primary @click="createAct"></app-btn>
+                        </div>
+                    </template>
+                </template>
+
+                <!-- State: act created -->
+                <template v-if="actState === 'created'">
+                    <div class="act-summary-type">Тип: {{ actData.actType }}</div>
+                    <div class="act-status-row">
+                        <span class="act-status-label">Статус: {{ actData.status }}</span>
+                        <div class="progress-group">
+                            <span class="progress-label">Заполнено:</span>
+                            <div class="progress-bar">
+                                <div class="progress-fill" :style="{ width: actData.progress + '%' }"></div>
+                            </div>
+                            <span class="progress-percent">{{ actData.progress }}%</span>
+                        </div>
+                    </div>
+                    <div class="action-buttons" style="justify-content: flex-start; padding-top: 8px;">
+                        <app-btn label="Открыть акт" primary @click="openAct"></app-btn>
+                        <app-btn label="Сформировать документ" @click="generateDoc"></app-btn>
+                        <app-btn label="Удалить" @click="deleteAct"></app-btn>
+                    </div>
+                </template>
+            </div>
+
+            <!-- Section 4: Signals -->
+            <div class="fields-section">
+                <div class="section-title">Сигналы</div>
+                <div class="checkbox-group">
+                    <app-checkbox v-for="(signal, i) in signals" :key="i"
+                        :label="signal.label" v-model="signal.checked"></app-checkbox>
+                </div>
+            </div>
+
+            <!-- Section 5: Documents panel (tree + table) -->
+            <div class="doc-panel">
+                <div class="doc-tree">
+                    <div class="doc-tree-title">Перечень документов</div>
+                    <div class="doc-tree-items">
+                        <div v-for="(group, gi) in docTree" :key="gi">
+                            <div class="tree-item">
+                                <div class="tree-btn"><div class="tree-btn-line"></div></div>
+                                <span class="tree-label">{{ group.label }}</span>
+                            </div>
+                            <div v-for="(child, ci) in group.children" :key="ci" class="tree-item-child" style="margin-top: 10px;">
+                                <div class="tree-btn-active"></div>
+                                <span class="tree-label">{{ child.label }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="doc-table-side">
+                    <app-table title="Документы"
+                        :columns="docColumns" :rows="docRows" empty-text="Нет записей"></app-table>
+                </div>
+            </div>
+
+            <!-- Section 6: Bottom tables side by side -->
+            <div class="bottom-tables">
+                <app-table title="История выполнения задачи"
+                    :columns="historyColumns" :rows="historyRows" footer-text="Строк: 2"></app-table>
+                <app-table title="Комментарии по задаче"
+                    :columns="commentColumns" :rows="commentRows" empty-text="Нет записей"></app-table>
+            </div>
+
+            <!-- Buttons (right aligned) -->
+            <div class="action-buttons">
+                <app-btn label="Назначить" @click="onAssign"></app-btn>
+                <app-btn label="Назначить проверяющего" @click="onAssignReviewer"></app-btn>
+                <app-btn label="Отменить" @click="onCancel"></app-btn>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/vue@3.3.0/dist/vue.global.prod.js"></script>
+    <!-- Design System Components -->
+    <script src="src/components/components.js"></script>
+    <script>
+        const { createApp, ref, reactive } = Vue;
+
+        const app = createApp({
+            setup() {
+                const pageTabs = ref([
+                    { label: '№ 12', active: true, error: false },
+                    { label: '№ 199', active: false, error: true }
+                ]);
+                const navItems = UzComponents.navItems;
+                const activeNav = ref(0);
+
+                const taskData = reactive({
+                    taskNumber: 199,
+                    creditId: 'test5',
+                    taskNumber2: '199',
+                    createdDate: '12.11.2025',
+                    status: 'Взята в работу',
+                    priority: 'Обычный',
+                    taskType: 'Задача мониторинга',
+                    monitoringType: 'Мониторинг условий',
+                    executor: 'Lev Aleksandrovich Medvedev',
+                    assignDate: '12.11.2025',
+                    deadline: '24.12.2025',
+                    completionDate: ''
+                });
+
+                const creditData = reactive({
+                    borrowerName: 'test1',
+                    contractType: '',
+                    contractNumber: '91000',
+                    startDate: '02.11.2021',
+                    endDate: '02.11.2022',
+                    amount: '800 000.00',
+                    currency: 'UZS',
+                    collateralClass: '',
+                    purpose: 'test'
+                });
+
+                const monitoringData = reactive({
+                    condition: 'Содержать все свои счета в Банке до полного исполнения своих обязательств по настоящему Кредитному договору',
+                    monitoringDate: '17.11.2025',
+                    conclusion: '',
+                    comment: ''
+                });
+
+                // Act monitoring — persist via localStorage
+                const saved = JSON.parse(localStorage.getItem('actMonitoring') || 'null');
+                const actState = ref(saved ? saved.state : 'none');
+                const actData = reactive(saved ? saved.data : {
+                    monitoringType: 'Мониторинг целевого использования',
+                    template: '',
+                    creditId: '',
+                    creditAmount: '800 000.00',
+                    creditCurrency: 'UZS',
+                    actType: '',
+                    status: 'В работе',
+                    progress: 45
+                });
+
+                function saveActState() {
+                    localStorage.setItem('actMonitoring', JSON.stringify({
+                        state: actState.value,
+                        data: { ...actData }
+                    }));
+                }
+
+                function createAct() {
+                    if (actData.monitoringType === 'Инспекционный мониторинг') {
+                        actData.actType = actData.template || 'Мониторинг кредитов на оборотные средства';
+                    } else {
+                        actData.actType = actData.monitoringType || 'Мониторинг целевого использования';
+                    }
+                    actData.creditId = actData.creditId || 'test5';
+                    actState.value = 'created';
+                    saveActState();
+                }
+                function openAct() {
+                    var type = actData.actType;
+                    if (type === 'Мониторинг кредитов на оборотные средства') {
+                        window.location.href = 'act_working_capital.html';
+                    } else if (type === 'Инвестиционный мониторинг') {
+                        window.location.href = 'act_investment.html';
+                    } else {
+                        window.location.href = 'act_target_use.html';
+                    }
+                }
+                function generateDoc() {
+                    alert('Формирование документа...');
+                }
+                function deleteAct() {
+                    actState.value = 'none';
+                    actData.monitoringType = 'Мониторинг целевого использования';
+                    actData.template = '';
+                    actData.creditId = '';
+                    actData.actType = '';
+                    localStorage.removeItem('actMonitoring');
+                }
+
+                const signals = ref([
+                    { label: 'Другие проблемы у кредита', checked: false },
+                    { label: 'Невыполнение Условие коллегиального органа', checked: false }
+                ]);
+
+                const docTree = ref([
+                    {
+                        label: 'Документы по мониторингу',
+                        children: [
+                            { label: 'Мониторинг выполнения условий кредитной программы', active: true }
+                        ]
+                    }
+                ]);
+                const docColumns = [
+                    { key: 'docType', label: 'Тип документа' },
+                    { key: 'createdDate', label: 'Дата создания' },
+                    { key: 'docName', label: 'Наименование документа' },
+                    { key: 'uploadedBy', label: 'Кем загружен' }
+                ];
+                const docRows = ref([]);
+
+                const historyColumns = [
+                    { key: 'date', label: 'Дата изменения' },
+                    { key: 'status', label: 'Статус' },
+                    { key: 'executor', label: 'Исполнитель' },
+                    { key: 'changedBy', label: 'Изменивший' }
+                ];
+                const historyRows = ref([
+                    { date: '12.11.2025 17:50:01', status: 'Взята в работу', executor: 'Lev Aleksandrovich Medvedev', changedBy: 'Lev Aleksandrovich Medvedev' },
+                    { date: '12.11.2025 17:47:33', status: 'Новая', executor: 'Lev Aleksandrovich Medvedev', changedBy: 'system user' }
+                ]);
+                const commentColumns = [
+                    { key: 'date', label: 'Дата добавления' },
+                    { key: 'author', label: 'Автор' },
+                    { key: 'text', label: 'Текст' }
+                ];
+                const commentRows = ref([]);
+
+                function selectPageTab(i) { pageTabs.value.forEach((t, idx) => t.active = idx === i); }
+                function closePageTab(i) { pageTabs.value.splice(i, 1); }
+                function goBack() { window.location.href = 'monitoring_list.html'; }
+                function onNav(i) { UzComponents.navigateTo(i); }
+                function onAssign() { alert('Назначить'); }
+                function onAssignReviewer() { alert('Назначить проверяющего'); }
+                function onCancel() { alert('Отменить'); }
+
+                return {
+                    pageTabs, navItems, activeNav, onNav,
+                    taskData, creditData, monitoringData,
+                    actState, actData, createAct, openAct, generateDoc, deleteAct,
+                    signals,
+                    docTree, docColumns, docRows,
+                    historyColumns, historyRows, commentColumns, commentRows,
+                    selectPageTab, closePageTab, goBack,
+                    onAssign, onAssignReviewer, onCancel
+                };
+            }
+        });
+
+        UzComponents.registerAll(app);
+        app.mount('#app');
+    </script>
+</body>
+</html>

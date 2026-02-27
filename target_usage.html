@@ -1,0 +1,1235 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Акт целевого использования кредита</title>
+    <link href="https://cdn.jsdelivr.net/npm/vuetify@3.4.0/dist/vuetify.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/@mdi/font@7.3.67/css/materialdesignicons.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: #f5f5f5;
+            min-height: 100vh;
+        }
+
+        .v-application {
+            background: transparent !important;
+        }
+
+        /* Simple tabs design */
+        .custom-tabs-container {
+            background: white;
+            padding: 16px;
+            margin-bottom: 20px;
+        }
+
+        .tabs-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 10px;
+            width: 100%;
+        }
+
+        .tab-button {
+            padding: 10px 16px;
+            border-radius: 4px;
+            background: transparent;
+            border: 1px solid #e0e0e0;
+            color: #666;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: center;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .tab-button:hover {
+            background: #f5f5f5;
+            border-color: #1976d2;
+            color: #1976d2;
+        }
+
+        .tab-button.active {
+            background: #1976d2;
+            border-color: #1976d2;
+            color: white;
+        }
+
+        /* Required field indicator */
+        .required-field .v-label {
+            position: relative;
+        }
+
+        .required-field .v-label::after {
+            content: ' *';
+            color: #d32f2f;
+            font-weight: 500;
+        }
+
+        /* Readonly fields */
+        .readonly-field .v-field {
+            background: #fafafa !important;
+            cursor: not-allowed;
+        }
+
+        /* Section titles */
+        .section-title {
+            font-size: 20px;
+            font-weight: 500;
+            margin-bottom: 16px;
+            color: #333;
+        }
+
+        .subsection-title {
+            font-size: 16px;
+            font-weight: 500;
+            margin-top: 20px;
+            margin-bottom: 12px;
+            color: #555;
+        }
+
+        /* Progress indicator */
+        .progress-info {
+            margin-bottom: 16px;
+            padding: 12px;
+            background: white;
+            border-radius: 4px;
+        }
+
+        /* Simple table hover */
+        .v-data-table tbody tr:hover {
+            background: #fafafa;
+        }
+
+        /* Form section styling */
+        .form-section {
+            padding: 24px;
+            background: white;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 960px) {
+            .tabs-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Floating Action Button */
+        .fab-container {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            z-index: 1000;
+        }
+
+        .fab {
+            width: 56px !important;
+            height: 56px !important;
+            border-radius: 50% !important;
+            background: #1976d2 !important;
+            color: white !important;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.06) !important;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 12px;
+            border-radius: 16px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .status-badge.success {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .status-badge.warning {
+            background: #fff3e0;
+            color: #f57c00;
+        }
+
+        .status-badge.error {
+            background: #ffebee;
+            color: #c62828;
+        }
+
+        .photo-upload-area {
+            border: 2px dashed #ccc;
+            border-radius: 8px;
+            padding: 32px;
+            text-align: center;
+            margin-top: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .photo-upload-area:hover {
+            border-color: #1976d2;
+            background: #e3f2fd;
+        }
+
+        .photo-thumbnail {
+            width: 120px;
+            height: 120px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .summary-card {
+            background: linear-gradient(135deg, #1976d2, #42a5f5);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .summary-value {
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .summary-label {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <v-app>
+            <!-- App Bar -->
+            <v-app-bar elevation="2" color="primary">
+                <v-app-bar-nav-icon @click="drawer = !drawer"></v-app-bar-nav-icon>
+                <v-app-bar-title>HIVE Monitoring</v-app-bar-title>
+                <v-spacer></v-spacer>
+                <v-btn icon>
+                    <v-icon>mdi-magnify</v-icon>
+                </v-btn>
+                <v-btn icon>
+                    <v-icon>mdi-bell</v-icon>
+                </v-btn>
+            </v-app-bar>
+
+            <!-- Navigation Drawer -->
+            <v-navigation-drawer v-model="drawer" temporary>
+                <v-list>
+                    <v-list-item>
+                        <v-list-item-content>
+                            <v-list-item-title class="text-h6">Навигация</v-list-item-title>
+                        </v-list-item-content>
+                    </v-list-item>
+                    <v-divider></v-divider>
+
+                    <!-- Обычные пункты меню -->
+                    <template v-for="item in menuItems" :key="item.title">
+                        <v-list-group v-if="item.submenu">
+                            <template v-slot:activator="{ props }">
+                                <v-list-item v-bind="props">
+                                    <template v-slot:prepend>
+                                        <v-icon>{{ item.icon }}</v-icon>
+                                    </template>
+                                    <v-list-item-title>{{ item.title }}</v-list-item-title>
+                                </v-list-item>
+                            </template>
+
+                            <v-list-item v-for="subitem in item.submenu"
+                                         :key="subitem.title"
+                                         :href="subitem.link"
+                                         link
+                                         density="compact"
+                                         style="padding-left: 24px">
+                                <template v-slot:prepend>
+                                    <v-icon size="small">{{ subitem.icon }}</v-icon>
+                                </template>
+                                <v-list-item-title>{{ subitem.title }}</v-list-item-title>
+                            </v-list-item>
+                        </v-list-group>
+
+                        <v-list-item v-else link>
+                            <template v-slot:prepend>
+                                <v-icon>{{ item.icon }}</v-icon>
+                            </template>
+                            <v-list-item-title>{{ item.title }}</v-list-item-title>
+                        </v-list-item>
+                    </template>
+                </v-list>
+            </v-navigation-drawer>
+
+            <v-main>
+                <v-container fluid style="max-width: 1400px;">
+                    <!-- Header -->
+                    <v-card elevation="1" class="mb-4">
+                        <v-card-text>
+                            <h1 style="font-size: 24px; font-weight: 500; margin-bottom: 8px;">Акт целевого использования кредита</h1>
+                            <p style="color: #666; font-size: 14px;">{{ formData.borrower.name || 'Заполните информацию о компании' }} • Кредит №{{ formData.credit.contractNumber || '—' }}</p>
+
+                            <!-- Action Buttons -->
+                            <v-row class="mt-4">
+                                <v-col cols="auto">
+                                    <v-btn color="primary" @click="saveForm" prepend-icon="mdi-content-save">
+                                        Сохранить
+                                    </v-btn>
+                                </v-col>
+                                <v-col cols="auto">
+                                    <v-btn variant="outlined" @click="resetForm" prepend-icon="mdi-refresh">
+                                        Сбросить
+                                    </v-btn>
+                                </v-col>
+                                <v-spacer></v-spacer>
+                                <v-col cols="auto">
+                                    <v-btn color="success" @click="generateDocument" prepend-icon="mdi-file-document-check">
+                                        Сформировать акт
+                                    </v-btn>
+                                </v-col>
+                            </v-row>
+                        </v-card-text>
+                    </v-card>
+
+                    <!-- Progress Indicator -->
+                    <v-card elevation="1" class="progress-info mb-4">
+                        <v-card-text>
+                            <div class="d-flex justify-space-between align-center mb-2">
+                                <span>Прогресс заполнения</span>
+                                <span style="font-weight: 500;">{{ progressPercentage }}%</span>
+                            </div>
+                            <v-progress-linear
+                                :model-value="progressPercentage"
+                                color="primary"
+                                height="8"
+                                rounded
+                            ></v-progress-linear>
+                        </v-card-text>
+                    </v-card>
+
+                    <!-- Summary Cards -->
+                    <v-row class="mb-6">
+                        <v-col cols="12" md="3">
+                            <div class="summary-card">
+                                <div class="summary-value">{{ formatNumber(totalContractAmount) }}</div>
+                                <div class="summary-label">Сумма договоров</div>
+                            </div>
+                        </v-col>
+                        <v-col cols="12" md="3">
+                            <div class="summary-card">
+                                <div class="summary-value">{{ formatNumber(totalReceivedAmount) }}</div>
+                                <div class="summary-label">Получено товаров</div>
+                            </div>
+                        </v-col>
+                        <v-col cols="12" md="3">
+                            <div class="summary-card">
+                                <div class="summary-value">{{ usagePercentage }}%</div>
+                                <div class="summary-label">Использовано</div>
+                            </div>
+                        </v-col>
+                        <v-col cols="12" md="3">
+                            <div class="summary-card">
+                                <div class="summary-value">{{ targetStatus }}</div>
+                                <div class="summary-label">Статус</div>
+                            </div>
+                        </v-col>
+                    </v-row>
+
+                    <!-- Tabs Navigation -->
+                    <v-card elevation="1" class="custom-tabs-container">
+                        <div class="tabs-grid">
+                            <button
+                                v-for="(section, index) in sections"
+                                :key="index"
+                                :class="['tab-button', { active: activeTab === index }]"
+                                @click="activeTab = index"
+                            >
+                                {{ index + 1 }}. {{ section.title }}
+                            </button>
+                        </div>
+                    </v-card>
+
+                    <!-- Tab Content -->
+                    <v-card elevation="1">
+                        <v-window v-model="activeTab">
+
+                            <!-- Tab 0: Сведения о заёмщике -->
+                            <v-window-item :value="0">
+                                <div class="form-section">
+                                    <h3 class="section-title">Сведения о заёмщике</h3>
+                                    <v-row>
+                                        <v-col cols="12" md="6">
+                                            <v-text-field
+                                                v-model="formData.borrower.name"
+                                                label="Наименование/ФИО заёмщика"
+                                                variant="outlined"
+                                                density="compact"
+                                                readonly
+                                                class="readonly-field required-field"
+                                            ></v-text-field>
+                                        </v-col>
+                                        <v-col cols="12" md="6">
+                                            <v-text-field
+                                                v-model="formData.borrower.inn"
+                                                label="ИНН"
+                                                variant="outlined"
+                                                density="compact"
+                                                readonly
+                                                class="readonly-field required-field"
+                                            ></v-text-field>
+                                        </v-col>
+                                        <v-col cols="12" md="6">
+                                            <v-text-field
+                                                v-model="formData.borrower.address"
+                                                label="Юридический адрес"
+                                                variant="outlined"
+                                                density="compact"
+                                                readonly
+                                                class="readonly-field"
+                                            ></v-text-field>
+                                        </v-col>
+                                        <v-col cols="12" md="6">
+                                            <v-text-field
+                                                v-model="formData.borrower.phone"
+                                                label="Телефон"
+                                                variant="outlined"
+                                                density="compact"
+                                                readonly
+                                                class="readonly-field"
+                                            ></v-text-field>
+                                        </v-col>
+                                        <v-col cols="12" md="4">
+                                            <v-text-field
+                                                v-model="formData.borrower.director"
+                                                label="Руководитель"
+                                                variant="outlined"
+                                                density="compact"
+                                            ></v-text-field>
+                                        </v-col>
+                                        <v-col cols="12" md="4">
+                                            <v-text-field
+                                                v-model="formData.borrower.accountant"
+                                                label="Главный бухгалтер"
+                                                variant="outlined"
+                                                density="compact"
+                                            ></v-text-field>
+                                        </v-col>
+                                        <v-col cols="12" md="4">
+                                            <v-select
+                                                v-model="formData.borrower.type"
+                                                :items="['Юридическое лицо', 'Индивидуальный предприниматель', 'Физическое лицо']"
+                                                label="Тип заёмщика"
+                                                variant="outlined"
+                                                density="compact"
+                                            ></v-select>
+                                        </v-col>
+                                        <v-col cols="12">
+                                            <v-textarea
+                                                v-model="formData.borrower.activity"
+                                                label="Вид деятельности"
+                                                variant="outlined"
+                                                density="compact"
+                                                rows="2"
+                                            ></v-textarea>
+                                        </v-col>
+                                    </v-row>
+                                </div>
+                            </v-window-item>
+
+                            <!-- Tab 1: Сведения о кредите -->
+                            <v-window-item :value="1">
+                                <div class="form-section">
+                                    <h3 class="section-title">Сведения о кредите</h3>
+                                    <v-row>
+                                        <v-col cols="12" md="6">
+                                            <v-text-field
+                                                v-model="formData.credit.bank"
+                                                label="Банк"
+                                                variant="outlined"
+                                                density="compact"
+                                                readonly
+                                                class="readonly-field required-field"
+                                            ></v-text-field>
+                                        </v-col>
+                                        <v-col cols="12" md="6">
+                                            <v-text-field
+                                                v-model="formData.credit.contractNumber"
+                                                label="Номер и дата кредитного договора"
+                                                variant="outlined"
+                                                density="compact"
+                                                readonly
+                                                class="readonly-field required-field"
+                                            ></v-text-field>
+                                        </v-col>
+                                        <v-col cols="12" md="3">
+                                            <v-text-field
+                                                v-model="formData.credit.amount"
+                                                label="Сумма кредита"
+                                                type="number"
+                                                suffix="сум"
+                                                variant="outlined"
+                                                density="compact"
+                                                readonly
+                                                class="readonly-field required-field"
+                                            ></v-text-field>
+                                        </v-col>
+                                        <v-col cols="12" md="3">
+                                            <v-select
+                                                v-model="formData.credit.currency"
+                                                :items="['UZS', 'USD', 'EUR', 'RUB']"
+                                                label="Валюта"
+                                                variant="outlined"
+                                                density="compact"
+                                                readonly
+                                                class="readonly-field"
+                                            ></v-select>
+                                        </v-col>
+                                        <v-col cols="12" md="3">
+                                            <v-text-field
+                                                v-model="formData.credit.issueDate"
+                                                label="Дата выдачи"
+                                                type="date"
+                                                variant="outlined"
+                                                density="compact"
+                                                readonly
+                                                class="readonly-field"
+                                            ></v-text-field>
+                                        </v-col>
+                                        <v-col cols="12" md="3">
+                                            <v-text-field
+                                                v-model="formData.credit.maturityDate"
+                                                label="Дата погашения"
+                                                type="date"
+                                                variant="outlined"
+                                                density="compact"
+                                                readonly
+                                                class="readonly-field"
+                                            ></v-text-field>
+                                        </v-col>
+                                        <v-col cols="12">
+                                            <v-textarea
+                                                v-model="formData.credit.purpose"
+                                                label="Цель кредита"
+                                                variant="outlined"
+                                                density="compact"
+                                                rows="3"
+                                                readonly
+                                                class="readonly-field required-field"
+                                            ></v-textarea>
+                                        </v-col>
+                                        <v-col cols="12" md="3">
+                                            <v-text-field
+                                                v-model="formData.credit.interestRate"
+                                                label="Процентная ставка"
+                                                type="number"
+                                                suffix="%"
+                                                variant="outlined"
+                                                density="compact"
+                                                readonly
+                                                class="readonly-field"
+                                            ></v-text-field>
+                                        </v-col>
+                                        <v-col cols="12" md="3">
+                                            <v-text-field
+                                                v-model="formData.credit.projectLaunchDate"
+                                                label="Ввод проекта в экспл."
+                                                type="date"
+                                                variant="outlined"
+                                                density="compact"
+                                            ></v-text-field>
+                                        </v-col>
+                                        <v-col cols="12" md="3">
+                                            <v-text-field
+                                                v-model="formData.credit.plannedJobs"
+                                                label="Рабочие места (план)"
+                                                type="number"
+                                                variant="outlined"
+                                                density="compact"
+                                            ></v-text-field>
+                                        </v-col>
+                                        <v-col cols="12" md="3">
+                                            <v-text-field
+                                                v-model="formData.credit.actualJobs"
+                                                label="Рабочие места (факт)"
+                                                type="number"
+                                                variant="outlined"
+                                                density="compact"
+                                            ></v-text-field>
+                                        </v-col>
+                                        <v-col cols="12" v-if="jobsDeficit">
+                                            <v-textarea
+                                                v-model="formData.credit.jobsDeficitReason"
+                                                label="Причина несоздания рабочих мест"
+                                                variant="outlined"
+                                                density="compact"
+                                                rows="2"
+                                                class="required-field"
+                                            ></v-textarea>
+                                        </v-col>
+                                    </v-row>
+                                </div>
+                            </v-window-item>
+
+                            <!-- Tab 2: Использование средств -->
+                            <v-window-item :value="2">
+                                <div class="form-section">
+                                    <h3 class="section-title">Использование кредитных средств</h3>
+
+                                    <!-- Договоры поставки -->
+                                    <h4 class="subsection-title">Договоры поставки</h4>
+                                    <v-btn color="primary" variant="flat" class="mb-4" @click="addSupplyContract">
+                                        <v-icon left>mdi-plus</v-icon>
+                                        Добавить договор
+                                    </v-btn>
+
+                                    <v-data-table
+                                        :headers="supplyContractHeaders"
+                                        :items="formData.usage.supplyContracts"
+                                        elevation="1"
+                                        density="compact"
+                                    >
+                                        <template v-slot:item="{ item, index }">
+                                            <tr>
+                                                <td><v-text-field v-model="item.supplier" density="compact" variant="plain"></v-text-field></td>
+                                                <td><v-text-field v-model="item.contractNumber" density="compact" variant="plain"></v-text-field></td>
+                                                <td><v-text-field v-model="item.contractDate" type="date" density="compact" variant="plain"></v-text-field></td>
+                                                <td><v-text-field v-model="item.amount" type="number" density="compact" variant="plain"></v-text-field></td>
+                                                <td><v-text-field v-model="item.purpose" density="compact" variant="plain"></v-text-field></td>
+                                                <td><v-text-field v-model="item.deliveryDate" type="date" density="compact" variant="plain"></v-text-field></td>
+                                                <td>
+                                                    <v-btn icon size="small" color="error" variant="text" @click="removeSupplyContract(index)">
+                                                        <v-icon>mdi-delete</v-icon>
+                                                    </v-btn>
+                                                </td>
+                                            </tr>
+                                        </template>
+                                    </v-data-table>
+
+                                    <!-- Полученные товары -->
+                                    <h4 class="subsection-title">Полученные товары/услуги</h4>
+                                    <v-btn color="primary" variant="flat" class="mb-4" @click="addReceivedGoods">
+                                        <v-icon left>mdi-plus</v-icon>
+                                        Добавить товар
+                                    </v-btn>
+
+                                    <v-data-table
+                                        :headers="receivedGoodsHeaders"
+                                        :items="formData.usage.receivedGoods"
+                                        elevation="1"
+                                        density="compact"
+                                    >
+                                        <template v-slot:item="{ item, index }">
+                                            <tr>
+                                                <td><v-text-field v-model="item.supplier" density="compact" variant="plain"></v-text-field></td>
+                                                <td><v-text-field v-model="item.invoiceNumber" density="compact" variant="plain"></v-text-field></td>
+                                                <td><v-text-field v-model="item.invoiceDate" type="date" density="compact" variant="plain"></v-text-field></td>
+                                                <td><v-text-field v-model="item.product" density="compact" variant="plain"></v-text-field></td>
+                                                <td><v-text-field v-model="item.quantity" type="number" density="compact" variant="plain"></v-text-field></td>
+                                                <td><v-text-field v-model="item.price" type="number" density="compact" variant="plain"></v-text-field></td>
+                                                <td><v-text-field v-model="item.total" type="number" density="compact" variant="plain"></v-text-field></td>
+                                                <td>
+                                                    <v-btn icon size="small" color="error" variant="text" @click="removeReceivedGoods(index)">
+                                                        <v-icon>mdi-delete</v-icon>
+                                                    </v-btn>
+                                                </td>
+                                            </tr>
+                                        </template>
+                                    </v-data-table>
+
+                                    <!-- Использование оборудования -->
+                                    <h4 class="subsection-title">Использование оборудования</h4>
+                                    <v-btn color="primary" variant="flat" class="mb-4" @click="addEquipmentUsage">
+                                        <v-icon left>mdi-plus</v-icon>
+                                        Добавить оборудование
+                                    </v-btn>
+
+                                    <v-data-table
+                                        :headers="equipmentUsageHeaders"
+                                        :items="formData.usage.equipmentUsage"
+                                        elevation="1"
+                                        density="compact"
+                                    >
+                                        <template v-slot:item="{ item, index }">
+                                            <tr>
+                                                <td><v-text-field v-model="item.purchasedProduct" density="compact" variant="plain"></v-text-field></td>
+                                                <td><v-text-field v-model="item.deliveredProduct" density="compact" variant="plain"></v-text-field></td>
+                                                <td><v-text-field v-model="item.quantity" type="number" density="compact" variant="plain"></v-text-field></td>
+                                                <td><v-text-field v-model="item.amount" type="number" density="compact" variant="plain"></v-text-field></td>
+                                                <td><v-text-field v-model="item.inUse" type="number" density="compact" variant="plain"></v-text-field></td>
+                                                <td><v-text-field v-model="item.absent" type="number" density="compact" variant="plain"></v-text-field></td>
+                                                <td><v-text-field v-model="item.notUsed" type="number" density="compact" variant="plain"></v-text-field></td>
+                                                <td>
+                                                    <v-btn icon size="small" color="error" variant="text" @click="removeEquipmentUsage(index)">
+                                                        <v-icon>mdi-delete</v-icon>
+                                                    </v-btn>
+                                                </td>
+                                            </tr>
+                                        </template>
+                                    </v-data-table>
+
+                                    <v-row class="mt-4" v-if="hasUnusedEquipment">
+                                        <v-col cols="12">
+                                            <v-textarea
+                                                v-model="formData.usage.unusedReason"
+                                                label="Причины неиспользования оборудования"
+                                                variant="outlined"
+                                                density="compact"
+                                                rows="3"
+                                                class="required-field"
+                                            ></v-textarea>
+                                        </v-col>
+                                    </v-row>
+                                </div>
+                            </v-window-item>
+
+                            <!-- Tab 3: Результаты -->
+                            <v-window-item :value="3">
+                                <div class="form-section">
+                                    <h3 class="section-title">Результаты мониторинга</h3>
+
+                                    <v-row>
+                                        <v-col cols="12">
+                                            <v-textarea
+                                                v-model="formData.results.actualUsage"
+                                                label="Фактическое использование кредитных средств"
+                                                variant="outlined"
+                                                density="compact"
+                                                rows="5"
+                                                class="required-field"
+                                                placeholder="Опишите, на что фактически были потрачены кредитные средства..."
+                                            ></v-textarea>
+                                        </v-col>
+                                    </v-row>
+
+                                    <h4 class="subsection-title">Фотоматериалы</h4>
+                                    <div class="photo-upload-area" @click="uploadPhotos">
+                                        <v-icon size="48" color="primary">mdi-camera-plus</v-icon>
+                                        <div class="mt-2">Нажмите для загрузки фотографий</div>
+                                        <div class="text-caption text-grey">Максимум 10 фотографий</div>
+                                    </div>
+
+                                    <v-row class="mt-4" v-if="formData.results.photos.length > 0">
+                                        <v-col cols="auto" v-for="(photo, index) in formData.results.photos" :key="index">
+                                            <div style="position: relative;">
+                                                <img :src="photo.url" class="photo-thumbnail">
+                                                <v-btn
+                                                    icon
+                                                    size="x-small"
+                                                    color="error"
+                                                    style="position: absolute; top: -8px; right: -8px;"
+                                                    @click="removePhoto(index)"
+                                                >
+                                                    <v-icon>mdi-close</v-icon>
+                                                </v-btn>
+                                            </div>
+                                        </v-col>
+                                    </v-row>
+
+                                    <h4 class="subsection-title">Выявленные обстоятельства</h4>
+                                    <v-row>
+                                        <v-col cols="12">
+                                            <v-textarea
+                                                v-model="formData.results.circumstances"
+                                                label="Выявленные обстоятельства"
+                                                variant="outlined"
+                                                density="compact"
+                                                rows="4"
+                                                placeholder="Опишите выявленные проблемы, нарушения или особенности..."
+                                            ></v-textarea>
+                                        </v-col>
+                                    </v-row>
+
+                                    <h4 class="subsection-title">Заключение</h4>
+                                    <v-row>
+                                        <v-col cols="12">
+                                            <v-textarea
+                                                v-model="formData.results.conclusion"
+                                                label="Заключение по результатам проверки"
+                                                variant="outlined"
+                                                density="compact"
+                                                rows="5"
+                                                class="required-field"
+                                                placeholder="Сформулируйте общее заключение о целевом использовании кредита..."
+                                            ></v-textarea>
+                                        </v-col>
+                                        <v-col cols="12" md="6">
+                                            <v-select
+                                                v-model="formData.results.targetUsageConfirmed"
+                                                :items="targetUsageOptions"
+                                                label="Целевое использование"
+                                                variant="outlined"
+                                                density="compact"
+                                                class="required-field"
+                                            ></v-select>
+                                        </v-col>
+                                        <v-col cols="12" md="6">
+                                            <v-select
+                                                v-model="formData.results.recommendation"
+                                                :items="recommendationOptions"
+                                                label="Рекомендация"
+                                                variant="outlined"
+                                                density="compact"
+                                                class="required-field"
+                                            ></v-select>
+                                        </v-col>
+                                    </v-row>
+
+                                    <div v-if="formData.results.targetUsageConfirmed" class="mt-4">
+                                        <v-chip
+                                            :class="['status-badge', getStatusClass()]"
+                                            size="large"
+                                        >
+                                            <v-icon left>{{ getStatusIcon() }}</v-icon>
+                                            {{ formData.results.targetUsageConfirmed }}
+                                        </v-chip>
+                                    </div>
+                                </div>
+                            </v-window-item>
+
+                        </v-window>
+                    </v-card>
+                </v-container>
+            </v-main>
+
+            <!-- Floating Action Button -->
+            <div class="fab-container">
+                <v-btn class="fab" @click="scrollToTop">
+                    <v-icon>mdi-chevron-up</v-icon>
+                </v-btn>
+            </div>
+
+            <!-- Snackbar для уведомлений -->
+            <v-snackbar v-model="snackbar" :timeout="3000" :color="snackbarColor">
+                {{ snackbarText }}
+                <template v-slot:actions>
+                    <v-btn variant="text" @click="snackbar = false">Закрыть</v-btn>
+                </template>
+            </v-snackbar>
+        </v-app>
+    </div>
+
+    <!-- Vue 3 и Vuetify -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vuetify@3.4.0/dist/vuetify.min.js"></script>
+
+    <script>
+        const { createApp } = Vue;
+        const { createVuetify } = Vuetify;
+
+        const vuetify = createVuetify({
+            theme: {
+                defaultTheme: 'light'
+            }
+        });
+
+        createApp({
+            data() {
+                return {
+                    drawer: false,
+                    activeTab: 0,
+                    snackbar: false,
+                    snackbarText: '',
+                    snackbarColor: 'success',
+
+                    // Menu items
+                    menuItems: [
+                        { title: 'Главная', icon: 'mdi-home' },
+                        { title: 'Задачи мониторинга', icon: 'mdi-clipboard-list' },
+                        {
+                            title: 'Акты мониторинга',
+                            icon: 'mdi-file-document',
+                            submenu: [
+                                {
+                                    title: 'Кредиты на оборотные средства',
+                                    icon: 'mdi-cash-multiple',
+                                    link: 'index.html'
+                                },
+                                {
+                                    title: 'Инвестиционный мониторинг',
+                                    icon: 'mdi-chart-timeline-variant',
+                                    link: 'investment_monitoring.html'
+                                },
+                                {
+                                    title: 'Целевое использование',
+                                    icon: 'mdi-target',
+                                    link: 'target_usage.html'
+                                }
+                            ]
+                        },
+                        { title: 'Отчеты', icon: 'mdi-chart-bar' },
+                        { title: 'Справочники', icon: 'mdi-book' },
+                        { title: 'Настройки', icon: 'mdi-cog' }
+                    ],
+
+                    // 4 раздела акта целевого использования
+                    sections: [
+                        { title: 'Сведения о заёмщике' },
+                        { title: 'Сведения о кредите' },
+                        { title: 'Использование средств' },
+                        { title: 'Результаты' }
+                    ],
+
+                    // Form data structure
+                    formData: {
+                        borrower: {
+                            name: '',
+                            inn: '',
+                            address: '',
+                            phone: '',
+                            director: '',
+                            accountant: '',
+                            type: 'Юридическое лицо',
+                            activity: ''
+                        },
+                        credit: {
+                            bank: '',
+                            contractNumber: '',
+                            amount: '',
+                            currency: 'UZS',
+                            issueDate: '',
+                            maturityDate: '',
+                            purpose: '',
+                            interestRate: '',
+                            projectLaunchDate: '',
+                            plannedJobs: '',
+                            actualJobs: '',
+                            jobsDeficitReason: ''
+                        },
+                        usage: {
+                            supplyContracts: [],
+                            receivedGoods: [],
+                            equipmentUsage: [],
+                            unusedReason: ''
+                        },
+                        results: {
+                            actualUsage: '',
+                            photos: [],
+                            circumstances: '',
+                            conclusion: '',
+                            targetUsageConfirmed: '',
+                            recommendation: ''
+                        }
+                    },
+
+                    // Reference data
+                    targetUsageOptions: [
+                        'Полностью подтверждено',
+                        'Частично подтверждено',
+                        'Не подтверждено'
+                    ],
+                    recommendationOptions: [
+                        'Продолжить кредитование',
+                        'Усилить контроль',
+                        'Потребовать возврат средств',
+                        'Инициировать взыскание'
+                    ],
+
+                    // Table headers
+                    supplyContractHeaders: [
+                        { title: 'Поставщик', key: 'supplier' },
+                        { title: 'Номер договора', key: 'contractNumber' },
+                        { title: 'Дата договора', key: 'contractDate' },
+                        { title: 'Сумма', key: 'amount' },
+                        { title: 'Цель', key: 'purpose' },
+                        { title: 'Срок поставки', key: 'deliveryDate' },
+                        { title: '', key: 'actions', sortable: false }
+                    ],
+
+                    receivedGoodsHeaders: [
+                        { title: 'Поставщик', key: 'supplier' },
+                        { title: 'Номер с/ф', key: 'invoiceNumber' },
+                        { title: 'Дата с/ф', key: 'invoiceDate' },
+                        { title: 'Продукция', key: 'product' },
+                        { title: 'Количество', key: 'quantity' },
+                        { title: 'Цена', key: 'price' },
+                        { title: 'Общая сумма', key: 'total' },
+                        { title: '', key: 'actions', sortable: false }
+                    ],
+
+                    equipmentUsageHeaders: [
+                        { title: 'Приобретенная продукция', key: 'purchasedProduct' },
+                        { title: 'Поставленная продукция', key: 'deliveredProduct' },
+                        { title: 'Количество', key: 'quantity' },
+                        { title: 'Сумма', key: 'amount' },
+                        { title: 'Используется', key: 'inUse' },
+                        { title: 'Отсутствует', key: 'absent' },
+                        { title: 'Не используется', key: 'notUsed' },
+                        { title: '', key: 'actions', sortable: false }
+                    ]
+                };
+            },
+            computed: {
+                progressPercentage() {
+                    let filled = 0;
+                    let total = 25; // Примерное количество обязательных полей
+
+                    if (this.formData.borrower.name) filled++;
+                    if (this.formData.borrower.inn) filled++;
+                    if (this.formData.credit.bank) filled++;
+                    if (this.formData.credit.amount) filled++;
+                    if (this.formData.credit.purpose) filled++;
+                    if (this.formData.results.actualUsage) filled++;
+                    if (this.formData.results.conclusion) filled++;
+                    if (this.formData.results.targetUsageConfirmed) filled++;
+                    if (this.formData.results.recommendation) filled++;
+                    if (this.formData.usage.supplyContracts.length > 0) filled += 3;
+                    if (this.formData.usage.receivedGoods.length > 0) filled += 3;
+                    if (this.formData.usage.equipmentUsage.length > 0) filled += 3;
+
+                    return Math.min(Math.round((filled / total) * 100), 100);
+                },
+                jobsDeficit() {
+                    const planned = parseFloat(this.formData.credit.plannedJobs) || 0;
+                    const actual = parseFloat(this.formData.credit.actualJobs) || 0;
+                    return actual < planned;
+                },
+                hasUnusedEquipment() {
+                    return this.formData.usage.equipmentUsage.some(item =>
+                        (parseFloat(item.notUsed) || 0) > 0
+                    );
+                },
+                totalContractAmount() {
+                    return this.formData.usage.supplyContracts.reduce((sum, item) =>
+                        sum + (parseFloat(item.amount) || 0), 0
+                    );
+                },
+                totalReceivedAmount() {
+                    return this.formData.usage.receivedGoods.reduce((sum, item) =>
+                        sum + (parseFloat(item.total) || 0), 0
+                    );
+                },
+                usagePercentage() {
+                    const creditAmount = parseFloat(this.formData.credit.amount) || 1;
+                    const received = this.totalReceivedAmount;
+                    return Math.min(((received / creditAmount) * 100).toFixed(1), 100);
+                },
+                targetStatus() {
+                    if (this.usagePercentage >= 90) return 'Использовано';
+                    if (this.usagePercentage >= 50) return 'Частично';
+                    return 'Не использовано';
+                }
+            },
+            methods: {
+                autoFill() {
+                    // Заполнение тестовыми данными
+                    this.formData.borrower.name = 'ООО "ТехноСтрой"';
+                    this.formData.borrower.inn = '123456789';
+                    this.formData.borrower.address = 'г. Ташкент, ул. Амира Темура, 100';
+                    this.formData.borrower.phone = '+998 90 123 45 67';
+                    this.formData.borrower.director = 'Каримов А.А.';
+                    this.formData.borrower.accountant = 'Азизова Г.Р.';
+                    this.formData.borrower.activity = 'Производство строительных материалов';
+
+                    this.formData.credit.bank = 'O\'zsanoatqurilishbank АТБ';
+                    this.formData.credit.contractNumber = '№ КД-2024/001 от 15.01.2024';
+                    this.formData.credit.amount = '500000000';
+                    this.formData.credit.currency = 'UZS';
+                    this.formData.credit.issueDate = '2024-01-15';
+                    this.formData.credit.maturityDate = '2026-01-15';
+                    this.formData.credit.purpose = 'Приобретение производственного оборудования для изготовления бетонных блоков';
+                    this.formData.credit.interestRate = '20';
+                    this.formData.credit.projectLaunchDate = '2024-06-01';
+                    this.formData.credit.plannedJobs = '25';
+                    this.formData.credit.actualJobs = '22';
+                    this.formData.credit.jobsDeficitReason = 'Частичная автоматизация производства снизила потребность в персонале';
+
+                    // Добавляем тестовые договоры поставки
+                    this.formData.usage.supplyContracts = [
+                        {
+                            supplier: 'ООО "ТехИмпорт"',
+                            contractNumber: 'ДП-2024/015',
+                            contractDate: '2024-02-10',
+                            amount: '300000000',
+                            purpose: 'Поставка оборудования',
+                            deliveryDate: '2024-04-15'
+                        },
+                        {
+                            supplier: 'АО "СтройМаш"',
+                            contractNumber: 'СМ-2024/087',
+                            contractDate: '2024-02-20',
+                            amount: '200000000',
+                            purpose: 'Поставка дополнительного оборудования',
+                            deliveryDate: '2024-05-01'
+                        }
+                    ];
+
+                    // Добавляем полученные товары
+                    this.formData.usage.receivedGoods = [
+                        {
+                            supplier: 'ООО "ТехИмпорт"',
+                            invoiceNumber: 'СФ-2024/1234',
+                            invoiceDate: '2024-04-15',
+                            product: 'Вибропресс для бетонных блоков',
+                            quantity: '1',
+                            price: '250000000',
+                            total: '250000000'
+                        },
+                        {
+                            supplier: 'АО "СтройМаш"',
+                            invoiceNumber: 'СФ-2024/5678',
+                            invoiceDate: '2024-05-01',
+                            product: 'Бетоносмеситель',
+                            quantity: '2',
+                            price: '75000000',
+                            total: '150000000'
+                        }
+                    ];
+
+                    // Использование оборудования
+                    this.formData.usage.equipmentUsage = [
+                        {
+                            purchasedProduct: 'Вибропресс',
+                            deliveredProduct: 'Вибропресс БП-500',
+                            quantity: '1',
+                            amount: '250000000',
+                            inUse: '1',
+                            absent: '0',
+                            notUsed: '0'
+                        },
+                        {
+                            purchasedProduct: 'Бетоносмеситель',
+                            deliveredProduct: 'Бетоносмеситель БС-750',
+                            quantity: '2',
+                            amount: '150000000',
+                            inUse: '2',
+                            absent: '0',
+                            notUsed: '0'
+                        }
+                    ];
+
+                    this.formData.results.actualUsage = 'Кредитные средства использованы на приобретение производственного оборудования согласно целевому назначению. Закуплены вибропресс для производства бетонных блоков и два бетоносмесителя. Оборудование установлено и введено в эксплуатацию.';
+                    this.formData.results.circumstances = 'Незначительная задержка поставки оборудования на 5 дней по причине таможенного оформления. Других нарушений не выявлено.';
+                    this.formData.results.conclusion = 'По результатам проверки установлено, что кредитные средства использованы по целевому назначению в полном объеме. Приобретенное оборудование соответствует заявленному в кредитной заявке. Производство запущено, создано 22 рабочих места из 25 запланированных.';
+                    this.formData.results.targetUsageConfirmed = 'Полностью подтверждено';
+                    this.formData.results.recommendation = 'Продолжить кредитование';
+
+                    // Добавляем примеры фото
+                    this.formData.results.photos = [
+                        { url: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iI2NjYyIvPjx0ZXh0IHRleHQtYW5jaG9yPSJtaWRkbGUiIHg9IjUwIiB5PSI1MCIgZm9udC1zaXplPSIxOCI+Rm90byAxPC90ZXh0Pjwvc3ZnPg==' },
+                        { url: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iI2NjYyIvPjx0ZXh0IHRleHQtYW5jaG9yPSJtaWRkbGUiIHg9IjUwIiB5PSI1MCIgZm9udC1zaXplPSIxOCI+Rm90byAyPC90ZXh0Pjwvc3ZnPg==' }
+                    ];
+
+                    this.showSnackbar('Форма заполнена тестовыми данными', 'success');
+                },
+                saveForm() {
+                    localStorage.setItem('targetUsageForm', JSON.stringify(this.formData));
+                    this.showSnackbar('Акт сохранен локально', 'success');
+                },
+                resetForm() {
+                    if (confirm('Вы уверены, что хотите сбросить все данные формы?')) {
+                        location.reload();
+                    }
+                },
+                generateDocument() {
+                    if (this.validateForm()) {
+                        this.showSnackbar('Генерация документа... (в разработке)', 'info');
+                    } else {
+                        this.showSnackbar('Заполните все обязательные поля', 'error');
+                    }
+                },
+                validateForm() {
+                    return this.formData.borrower.name &&
+                           this.formData.borrower.inn &&
+                           this.formData.credit.bank &&
+                           this.formData.credit.amount &&
+                           this.formData.credit.purpose &&
+                           this.formData.results.actualUsage &&
+                           this.formData.results.conclusion &&
+                           this.formData.results.targetUsageConfirmed &&
+                           this.formData.results.recommendation;
+                },
+                addSupplyContract() {
+                    this.formData.usage.supplyContracts.push({
+                        supplier: '',
+                        contractNumber: '',
+                        contractDate: '',
+                        amount: 0,
+                        purpose: '',
+                        deliveryDate: ''
+                    });
+                },
+                removeSupplyContract(index) {
+                    this.formData.usage.supplyContracts.splice(index, 1);
+                },
+                addReceivedGoods() {
+                    this.formData.usage.receivedGoods.push({
+                        supplier: '',
+                        invoiceNumber: '',
+                        invoiceDate: '',
+                        product: '',
+                        quantity: 0,
+                        price: 0,
+                        total: 0
+                    });
+                },
+                removeReceivedGoods(index) {
+                    this.formData.usage.receivedGoods.splice(index, 1);
+                },
+                addEquipmentUsage() {
+                    this.formData.usage.equipmentUsage.push({
+                        purchasedProduct: '',
+                        deliveredProduct: '',
+                        quantity: 0,
+                        amount: 0,
+                        inUse: 0,
+                        absent: 0,
+                        notUsed: 0
+                    });
+                },
+                removeEquipmentUsage(index) {
+                    this.formData.usage.equipmentUsage.splice(index, 1);
+                },
+                uploadPhotos() {
+                    // Эмуляция загрузки фото
+                    if (this.formData.results.photos.length < 10) {
+                        this.formData.results.photos.push({
+                            url: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iI2NjYyIvPjx0ZXh0IHRleHQtYW5jaG9yPSJtaWRkbGUiIHg9IjUwIiB5PSI1MCIgZm9udC1zaXplPSIxOCI+Rm90bzwvdGV4dD48L3N2Zz4='
+                        });
+                        this.showSnackbar('Фото добавлено', 'success');
+                    } else {
+                        this.showSnackbar('Максимум 10 фотографий', 'warning');
+                    }
+                },
+                removePhoto(index) {
+                    this.formData.results.photos.splice(index, 1);
+                },
+                formatNumber(value) {
+                    if (!value) return '0';
+                    return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+                },
+                getStatusClass() {
+                    const status = this.formData.results.targetUsageConfirmed;
+                    if (status === 'Полностью подтверждено') return 'success';
+                    if (status === 'Частично подтверждено') return 'warning';
+                    if (status === 'Не подтверждено') return 'error';
+                    return '';
+                },
+                getStatusIcon() {
+                    const status = this.formData.results.targetUsageConfirmed;
+                    if (status === 'Полностью подтверждено') return 'mdi-check-circle';
+                    if (status === 'Частично подтверждено') return 'mdi-alert-circle';
+                    if (status === 'Не подтверждено') return 'mdi-close-circle';
+                    return 'mdi-help-circle';
+                },
+                showSnackbar(text, color) {
+                    this.snackbarText = text;
+                    this.snackbarColor = color;
+                    this.snackbar = true;
+                },
+                scrollToTop() {
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                }
+            },
+            mounted() {
+                // Инициализация с пустыми данными
+                this.addSupplyContract();
+                this.addReceivedGoods();
+                this.addEquipmentUsage();
+            }
+        }).use(vuetify).mount('#app');
+    </script>
+</body>
+</html>

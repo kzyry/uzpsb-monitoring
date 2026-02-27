@@ -1,0 +1,927 @@
+<!DOCTYPE html>
+<html class="x-border-box x-strict x-viewport">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width">
+    <meta http-equiv="cache-control" content="no-store, max-age=0">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+    <title>collection-asia</title>
+    <base href=".">
+    <link href="../archive/верстка/таблица вся_files/f48a9ea2.css" rel="stylesheet" type="text/css">
+    <style type="text/css">
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap');
+    </style>
+    <link href="../archive/верстка/таблица вся_files/10.fab705a6.css" rel="stylesheet" type="text/css">
+    <link href="../archive/верстка/таблица вся_files/13.3a0562f5.css" rel="stylesheet" type="text/css">
+    <link href="../archive/верстка/таблица вся_files/30.95a1206c.css" rel="stylesheet" type="text/css">
+    <link href="../archive/верстка/таблица вся_files/theme.css" rel="stylesheet" type="text/css">
+    <style>
+        /* === Minimal overrides for missing images/sprites === */
+
+        /* Sort arrows: original uses sprite PNGs, we use CSS triangles */
+        .ui-arrow .ui-arrow-up,
+        .ui-arrow .ui-arrow-down {
+            width: 0 !important;
+            height: 0 !important;
+            background: none !important;
+        }
+        .ui-arrow .ui-arrow-up {
+            border-left: 4px solid transparent;
+            border-right: 4px solid transparent;
+            border-bottom: 4px solid #999;
+        }
+        .ui-arrow .ui-arrow-down {
+            border-left: 4px solid transparent;
+            border-right: 4px solid transparent;
+            border-top: 4px solid #999;
+        }
+
+        /* Datepicker trigger icon via CSS */
+        .datepicker-trigger {
+            background-image: none !important;
+            position: relative;
+        }
+        .datepicker-trigger::after {
+            content: '';
+            display: block;
+            width: 16px;
+            height: 16px;
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23808080'%3E%3Cpath d='M19 3h-1V1h-2v2H8V1H6v2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2zm0 16H5V8h14v11z'/%3E%3C/svg%3E") center/contain no-repeat;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        /* Dropdown trigger icon via CSS */
+        .dropdown-trigger {
+            background-image: none !important;
+            position: relative;
+        }
+        .dropdown-trigger::after {
+            content: '';
+            display: block;
+            width: 0;
+            height: 0;
+            border-left: 4px solid transparent;
+            border-right: 4px solid transparent;
+            border-top: 5px solid #808080;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        /* Refresh button icon */
+        .ui-btn.btn-blue[data-name="refresh_tasks"] {
+            background-image: none !important;
+            position: relative;
+        }
+
+        /* Side menu overlay and panel */
+        .vcm-side-panel-overlay.visible {
+            display: block !important;
+        }
+        .vcm-side-panel.open {
+            transform: translateX(0) !important;
+            display: block !important;
+        }
+        .vcm-side-panel {
+            transition: transform .25s ease;
+        }
+
+        /* Menu items */
+        .menu_item .menu_item_inner {
+            cursor: pointer;
+            padding: 12px 16px;
+            font-size: 14px;
+            transition: background .12s;
+        }
+        .menu_item .menu_item_inner:hover {
+            background: #eaeef2;
+        }
+        .menu_item.active-item .menu_item_inner {
+            background: #dce6f0;
+            color: #003D64;
+            font-weight: 500;
+        }
+
+        /* systemAuth forced display */
+        .systemAuth {
+            display: flex !important;
+        }
+
+        /* Ensure full height layout */
+        html, body {
+            height: 100%;
+            margin: 0;
+            overflow: hidden;
+        }
+        .VCMTabsPanel {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .VCMTabPanel.vcm-root-frame {
+            flex: 1;
+            overflow: hidden;
+        }
+        .width-max.css-layout.vcm-runtime {
+            height: 100% !important;
+            display: flex !important;
+            flex-direction: column;
+        }
+        .vcm-frame-inner {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden !important;
+        }
+
+        /* Main frame */
+        .element.docked.view-frame > .element.component-frame.stretch {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        #mainStretchGroup {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        #contentRow {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* Grid takes remaining space */
+        .widget-ext-grid {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .vcm-widget-wrapper.jq_default__grid.columns {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .ui-columns-table {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .ui-table-wrapper {
+            flex: 1;
+            overflow: auto !important;
+        }
+
+        /* Row colors */
+        tr[style*="background-color: #ed5a5a"] { background-color: #ed5a5a !important; }
+        tr[style*="background-color: #f5c242"] { background-color: #f5c242 !important; }
+        tr[style*="background-color: #f5a623"] { background-color: #f5a623 !important; }
+
+        /* Selected row */
+        .ui-table tbody tr.selected-row {
+            outline: 2px solid #003D64;
+            outline-offset: -2px;
+        }
+
+        /* Filter panel body toggle */
+        .jq-panel-body-default.collapsed-body {
+            display: none !important;
+        }
+
+        /* Collapsible icon rotation */
+        .jq-panel-header-text-default .tool.collapsible.collapsed .tool-icon {
+            transform: rotate(-90deg);
+        }
+
+        /* Panel header cursor */
+        .jq-panel-header-text-default {
+            cursor: pointer;
+        }
+
+        /* Fix filter group layout */
+        #filterGroupRow {
+            display: flex;
+            flex-wrap: nowrap;
+            gap: 0;
+        }
+        #filterGroupRow > .element.group {
+            flex: 1;
+            min-width: 0;
+        }
+        #filterTextRow {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: flex-end;
+            gap: 4px;
+        }
+        #filterTextRow > .element.widget {
+            flex: 0 0 auto;
+        }
+
+        /* Filter fields sizing */
+        .user-def-filters .field_container .fields-wrapper input.text_field {
+            width: 100%;
+        }
+
+        /* Button row alignment */
+        #buttonGroup {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+            align-items: center;
+        }
+    </style>
+</head>
+<body class="home-bg">
+    <div id="MainViewport">
+        <div class="VCMTabsPanel vcm-theme-beauty vcm-theme-psb">
+            <!-- Top Toolbar with systemAuth -->
+            <div class="VCMTopToolbar">
+                <div class="timerContainer noBlinkAnimation"></div>
+                <div class="systemAuth" style="display: flex;">
+                    <div class="logo"></div>
+                    <div class="title"><div>collection-asia</div></div>
+                    <div class="rightPanel">
+                        <div class="timerContainer"></div>
+                        <div class="icon22 forms" style="display: inline-block;"><div class="text">2</div></div>
+                        <div class="icon22 applications"><div class="text">8</div></div>
+                        <div class="icon22 profile"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main content panel -->
+            <div class="VCMTabPanel vcm-root-frame activate">
+                <div class="width-max css-layout vcm-runtime vcm-display-mode-desktop" style="overflow: auto; cursor: default; display: block; height: 100%;">
+                    <div class="vcm-frame-inner" style="height: 100%; overflow: auto;">
+                        <div class="element docked view-frame" style="padding: 10px;" data-form-status="loaded">
+                            <div class="element component-frame stretch" style="min-height: min-content;">
+                                <div id="mainStretchGroup" class="element stretch group-stretch group vertical-group" style="min-height: min-content;">
+
+                                    <!-- Header row: burger + logo + phone -->
+                                    <div class="element group-stretch group user-def-header horizontal-group" style="flex: 1 0 0;">
+                                        <!-- Burger -->
+                                        <div class="element widget widget-picture cell-noflex user-def-burger" style="max-width:30px;max-height:30px;min-height:30px;min-width:30px!important;width:min-content;">
+                                            <div style="width:100%;" class="vcm-widget-wrapper jq_default__view_picture">
+                                                <div class="imageWrapper" style="position:relative;width:100%;height:100%;overflow:hidden;" id="burgerBtn">
+                                                    <div class="imgContainer">
+                                                        <div class="imgElem"><img src="data:image/svg+xml;base64,PHN2ZyBkYXRhLW5hbWU9IkxheWVyIDEiIHZpZXdCb3g9IjAgMCAzMiAzMiIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNMyA5aDI2YTIgMiAwIDAgMCAwLTRIM2EyIDIgMCAwIDAgMCA0Wk0yOSAxNEgzYTIgMiAwIDAgMCAwIDRoMjZhMiAyIDAgMCAwIDAtNFpNMjkgMjNIM2EyIDIgMCAwIDAgMCA0aDI2YTIgMiAwIDAgMCAwLTRaIiBmaWxsPSIjMDAzZDY0IiBjbGFzcz0iZmlsbC1iYTYzYzYiPjwvcGF0aD48L3N2Zz4=" style="height:100%;width:100%;"></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <!-- Logo -->
+                                        <div class="element widget widget-picture cell-noflex user-def-logo" style="max-width:70px;max-height:24px;min-height:24px;min-width:70px!important;width:min-content;">
+                                            <div style="width:100%;" class="vcm-widget-wrapper jq_default__view_picture">
+                                                <div class="imageWrapper" style="position:relative;width:100%;height:100%;overflow:hidden;">
+                                                    <div class="imgContainer">
+                                                        <div class="imgElem"><img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNzAiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCA3MCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZmlsbC1ydWxlPSJldmVub2RkIiBjbGlwLXJ1bGU9ImV2ZW5vZGQiIGQ9Ik0yMy4wNjg3IDUuNzQ1MTRDMjIuMDAxNCA0LjA2MzE4IDIwLjUxNzEgMi42NTQ1IDE4Ljc1NTIgMS42NTMwOUMxNi45MDY3IDAuNjAyNzM3IDE0Ljc1IDAgMTIuNDQ1MSAwQzEwLjE0MDQgMCA3Ljk4MzYgMC42MDI2MDQgNi4xMzUyNCAxLjY1MzA5QzQuMzczMTcgMi42NTQ0MyAyLjg4OSA0LjA2MzE4IDEuODIxNTMgNS43NDUwOEMzLjc2MDI1IDYuMzkxODMgNS4yOTg5MiA3Ljg1Mjg4IDYuMDA4MzMgOS42OTU0QzYuMzU2MTUgOC43OTIxOCA2LjkwMjI2IDcuOTgyMDMgNy41OTYgNy4zMTQ0N0M4LjgzODMgNi4xMTg3NCAxMC41NTI3IDUuMzc5MzUgMTIuNDQ1MSA1LjM3OTM1QzE0LjMzODMgNS4zNzkzNSAxNi4wNTMyIDYuMTE5MiAxNy4yOTU1IDcuMzE1NTVDMTcuOTg4NSA3Ljk4MjkyIDE4LjUzNDIgOC43OTI0OCAxOC44ODE4IDkuNjk0ODhDMTkuNTkyOCA3Ljg0NjU4IDIxLjEzMzEgNi4zOTIyMyAyMy4wNjg3IDUuNzQ1MTRaIiBmaWxsPSIjQjFCM0IzIi8+CjxwYXRoIGZpbGwtcnVsZT0iZXZlbm9kZCIgY2xpcC1ydWxlPSJldmVub2RkIiBkPSJNMTguNDUzMSAxNS4yMDYzQzE4LjE0MDggMTUuNzQ5OCAxNy43NTE2IDE2LjI0NjEgMTcuMjk5OSAxNi42ODE5QzE2LjA1NzQgMTcuODc5NyAxNC4zNDA3IDE4LjYyMDUgMTIuNDQ1MSAxOC42MjA1QzEwLjU0OTEgMTguNjIwNSA4LjgzMjUzIDE3Ljg3OTUgNy41OTAwOCAxNi42ODEzQzYuMzQ3NTEgMTUuNDgzMyA1LjU3ODk3IDEzLjgyOCA1LjU3ODk3IDExLjk5OTlDNS41Nzg5NyA5LjQ3MjAzIDMuODg2OSA3LjI0NzczIDEuMzkyOTUgNi40NzYwN0MwLjk2NTkzMiA3LjI2ODU0IDAuNjI4MDcgOC4xMTE2OCAwLjM5MjE1NSA4Ljk5MzMxQzAuMTM2MTgyIDkuOTQ5ODYgMCAxMC45NTczIDAgMTJDMCAxNS4zMTM2IDEuMzkzMDEgMTguMzEzOCAzLjY0NTEgMjAuNDg1M0M1Ljg5NzIgMjIuNjU2NyA5LjAwODQ4IDIzLjk5OTkgMTIuNDQ1MSAyMy45OTk5QzE0LjA3NDYgMjMuOTk5OSAxNS42MTk3IDIzLjM3MyAxNi43NTc0IDIyLjI0NzNDMTcuODEyNCAyMS4yMDM1IDE4LjQ2MTIgMTkuNzc4NyAxOC40NTQ4IDE4LjIwODVMMTguNDUzMSAxNS4yMDYzWiIgZmlsbD0iIzAwM0Q2NCIvPgo8cGF0aCBmaWxsLXJ1bGU9ImV2ZW5vZGQiIGNsaXAtcnVsZT0iZXZlbm9kZCIgZD0iTTI0Ljg5MDQgMTEuOTk5OUMyNC44OTA0IDEwLjk1NzMgMjQuNzU0MSA5Ljk0OTc4IDI0LjQ5ODEgOC45OTMyM0MyNC4yNjI1IDguMTExNzYgMjMuOTI0NiA3LjI2ODQ3IDIzLjQ5NzMgNi40NzYwN0MyMS4wMTM3IDcuMjM3MTMgMTkuMzE1OSA5LjQ3MDMxIDE5LjMwOTggMTEuOTg0OFYxOC4yMDY3QzE5LjMxNzEgMjAuMTEyNiAxOC40NjgzIDIxLjkyMTMgMTYuOTgyOSAyMy4xNzc4QzE4LjYyIDIyLjU1OTQgMjAuMDg4NSAyMS42MTYzIDIxLjMwMjcgMjAuNDMwNEMyMy41MjEgMTguMjYzOCAyNC44OTA0IDE1LjI4NjYgMjQuODkwNCAxMS45OTk5WiIgZmlsbD0iI0Q1MjAyMyIvPgo8cGF0aCBmaWxsLXJ1bGU9ImV2ZW5vZGQiIGNsaXAtcnVsZT0iZXZlbm9kZCIgZD0iTTM1LjUyNTMgMTguNjY4MkMzNy4xMDc0IDE4LjY2ODIgMzguNDA2OCAxOC4zMDUxIDM5LjQwNTEgMTcuNTYwNEM0MC40MDMzIDE2LjgxNTkgNDAuOTExOCAxNS44MzUzIDQwLjkxMTggMTQuNTgyM0M0MC45MTE4IDEzLjQ5MjcgNDAuNTUzOSAxMi42MzkxIDM5LjgzODIgMTIuMDM5OEMzOS4xMjI1IDExLjQ0MDYgMzguMTI0NCAxMC45MzIxIDM2Ljg2MjQgMTAuNTMyNkMzNi4zMTY0IDEwLjM2OTEgMzUuNDQ5OSAxMC4xNTEyIDM1LjA1NDYgMTAuMDI0MUwzNC40NTE5IDkuODI0MzRDMzQuMDU2NCA5LjY2MDk5IDMzLjkwNTYgOS40NzkzNCAzMy45MDU2IDkuMjQzMTdDMzMuOTA1NiA4LjY4MDI5IDM0LjQ4OTQgOC40MDc4OSAzNS42Mzg0IDguNDA3ODlDMzYuMzkxNyA4LjQwNzg5IDM3LjE2MzkgOC41MzQ5NCAzNy45NzM4IDguNzcxMDRDMzguNzgzNiA5LjAwNzE0IDM5LjQ4MDMgOS4yOTc2OSA0MC4wNjQzIDkuNjQyNzdWNi41MDEwNUMzOC42ODkzIDUuNzkyODEgMzcuMjAxNCA1LjQ0Nzc1IDM1LjYwMDYgNS40NDc3NUMzMi40MzY1IDUuNDQ3NzUgMzAuNDIxMiA2LjgwOTY4IDMwLjQyMTIgOS4yNjE0N0MzMC40MjEyIDEwLjAwNiAzMC42NDcyIDEwLjY3NzkgMzAuODkyMSAxMS4xMzJDMzEuMTc0NiAxMS41ODU5IDMxLjc5NjIgMTIuMDIxNyAzMi4xNzI4IDEyLjI5NDJDMzIuMzgwMSAxMi40MjEyIDMyLjY2MjUgMTIuNTQ4NCAzMy4wMzkyIDEyLjY5MzdMMzMuOTA1NSAxMy4wMjA1TDM0Ljg2NjEgMTMuMjkyOUwzNi4wNTI2IDEzLjYzOEMzNi4yNzg1IDEzLjcxMDYgMzYuNzQ5MyAxMy44Mzc4IDM2LjkwMDEgMTMuOTY0OUMzNy4yMDE0IDE0LjE2NDcgMzcuNDA4NiAxNC4zMjggMzcuNDA4NiAxNC43MDk0QzM3LjQwODYgMTUuMzgxMyAzNi43MzA3IDE1LjcwODIgMzUuMzkzMyAxNS43MDgyQzM0LjU0NTggMTUuNzA4MiAzMy42NDE5IDE1LjU0NDcgMzIuNjgxMyAxNS4xOTk4QzMxLjcyMDkgMTQuODU0NyAzMC45Njc0IDE0LjQ1NTIgMzAuNDIxMSAxMy45NjQ5VjE3LjMwNjNDMzEuNzk2MSAxOC4yMTQ0IDMzLjQ5MTMgMTguNjY4MiAzNS41MjUzIDE4LjY2ODJaIiBmaWxsPSIjMDAzRDY0Ii8+CjxwYXRoIGZpbGwtcnVsZT0iZXZlbm9kZCIgY2xpcC1ydWxlPSJldmVub2RkIiBkPSJNNjUuMjkxNSAxOC40MTc1QzY2LjcwNCAxOC40MTc1IDY3Ljg1MyAxOC4wOTA3IDY4LjcwMDUgMTcuNDE4N0M2OS41NjY5IDE2Ljc0NjggNzAgMTUuODU3IDcwIDE0Ljc2NzNDNzAgMTMuODQxMyA2OS43MzY0IDEzLjA5NjYgNjkuMjI3OCAxMi40OTc0QzY4LjcxOTQgMTEuODk4MSA2OC4xMzU1IDExLjUzNDkgNjcuNDk1MiAxMS4zODk2QzY4LjMwNSAxMS4wMjY1IDY5LjAzOTUgMTAuMTU0OCA2OS4wMzk1IDguOTE5ODlDNjkuMDM5NSA2LjgzMTQ4IDY3LjM0NDUgNS43MDU1NyA2NC45MzM5IDUuNzA1NTdINTguNTExN1YxOC40MTc1SDY1LjI5MTVaTTYxLjkwMTUgMTIuOTg3N0g2NC42MzIzQzY1LjYzMDYgMTIuOTg3NyA2Ni4yODk3IDEzLjQ5NjIgNjYuMjg5NyAxNC4zNDk3QzY2LjI4OTcgMTUuMjAzMiA2NS42NjgyIDE1LjY5MzYgNjQuNjMyMyAxNS42OTM2SDYxLjkwMTVWMTIuOTg3N1pNNjEuOTAxNSA4LjM1NzAxSDY0LjQyNTJDNjUuMjUzOSA4LjM1NzAxIDY1Ljc4MTIgOC43NzQ2OSA2NS43ODEyIDkuNDgyOTFDNjUuNzgxMiAxMC4xNTQ4IDY1LjI1MzkgMTAuNTcyNSA2NC40MjUyIDEwLjU3MjVINjEuOTAxNVY4LjM1NzAxWiIgZmlsbD0iIzAwM0Q2NCIvPgo8cGF0aCBmaWxsLXJ1bGU9ImV2ZW5vZGQiIGNsaXAtcnVsZT0iZXZlbm9kZCIgZD0iTTUzLjY1NzUgMjEuNzAwN0M1NC40MzQ1IDIxLjcwMDcgNTUuMTM1OCAyMS41NTQ1IDU1Ljc4MDIgMjEuMjgwNFYxOC41NTcyQzU1LjMwNjUgMTguODEzMSA1NC43NzU3IDE4Ljk0MSA1NC4yMDcxIDE4Ljk0MUM1My40Njc5IDE4Ljk0MSA1Mi44NjE1IDE4LjY4NTIgNTIuNDA2NiAxOC4xNTUyQzUzLjYzODQgMTcuNjI1MiA1NC42MDUyIDE2LjgwMjggNTUuMzI1NSAxNS43MjQ1QzU2LjA0NTYgMTQuNjQ2MiA1Ni40MDU4IDEzLjQ0IDU2LjQwNTggMTIuMTA1OUM1Ni40MDU4IDEwLjI2IDU1Ljc0MjMgOC42ODgyNSA1NC40MTU2IDcuMzkwNjNDNTMuMDg4OSA2LjA5Mjk4IDUxLjQyMSA1LjQ1MzM3IDQ5LjQxMTggNS40NTMzN0M0Ny40MDI4IDUuNDUzMzcgNDUuNzM0OCA2LjA5MzA1IDQ0LjQwODEgNy4zOTA2M0M0My4wODEzIDguNjg4MjUgNDIuNDE3NyAxMC4yNiA0Mi40MTc3IDEyLjEwNTlDNDIuNDE3NyAxMy44NDIgNDMuMDA1NCAxNS4zNTg5IDQ0LjE5OTUgMTYuNjJDNDUuMzkzNyAxNy44ODEgNDYuOTA5OSAxOC41NzU2IDQ4Ljc0ODUgMTguNzIxOEM1MC41ODcgMjAuOTE0OSA1Mi4wNjU0IDIxLjcwMDcgNTMuNjU3NSAyMS43MDA3Wk00Ni45MDk5IDE0LjcwMUM0Ni4yNDY1IDE0LjAyNDggNDUuOTI0MiAxMy4xNDc2IDQ1LjkyNDIgMTIuMTA1OUM0NS45MjQyIDExLjA2NDEgNDYuMjQ2NSAxMC4xODY5IDQ2LjkwOTkgOS41MTA3OEM0Ny41NzMyIDguODM0NSA0OC40MDczIDguNDg3NCA0OS40MTE3IDguNDg3NEM1MC40MTYzIDguNDg3NCA1MS4yMzEzIDguODM0NTggNTEuODk0NyA5LjUxMDc4QzUyLjU1ODIgMTAuMTg3IDUyLjg5OTMgMTEuMDY0MSA1Mi44OTkzIDEyLjEwNTlDNTIuODk5MyAxMy4xNDc2IDUyLjU1ODIgMTQuMDI0OSA1MS44OTQ3IDE0LjcwMUM1MS4yMzEyIDE1LjM3NzMgNTAuNDE2MyAxNS43MjQ1IDQ5LjQxMTcgMTUuNzI0NUM0OC40MDcyIDE1LjcyNDUgNDcuNTczMiAxNS4zNzcyIDQ2LjkwOTkgMTQuNzAxWiIgZmlsbD0iIzAwM0Q2NCIvPgo8L3N2Zz4K" style="height:100%;width:100%;"></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <!-- Phone field -->
+                                        <div class="element widget widget-textfield-mask" style="min-width:166px;min-height:34px;max-height:34px;height:42px;">
+                                            <div style="width:100%;" class="vcm-widget-wrapper jq-style-default">
+                                                <div class="field_container empty label-align-left text-align-left">
+                                                    <div class="center row" style="margin-left:2px;margin-right:2px;">
+                                                        <span class="label" style="width:130px;">Номер телефона</span>
+                                                        <div class="fields-wrapper input-border" style="margin-left:130px;">
+                                                            <input class="text_field tooltip-area" type="text" maxlength="1024" value="" autocomplete="off" spellcheck="false">
+                                                            <div class="error_img"></div>
+                                                            <div class="check_img"></div>
+                                                            <div class="req_img"></div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <!-- Spacer to push menu right -->
+                                        <div class="element widget widget-repeater" style="flex:2000 0 0px;"></div>
+                                    </div>
+
+                                    <!-- Content area -->
+                                    <div id="contentRow" class="element group-stretch group vertical-group" style="flex:1 1 auto;">
+
+                                        <!-- Filter panel -->
+                                        <div class="element widget widget-panel height-by-content width-by-content user-def-filters" style="flex:0 0 auto;">
+                                            <div style="width:100%;" class="vcm-widget-wrapper jq-style-default jq-panel-wrapper tooltip-area tooltip-anchor sizeOfContent">
+                                                <div class="jq-panel-header-text-default" id="filterHeader" style="background-color:#ffffff;">
+                                                    <span style="background-color:#ffffff;color:#808080">Активные задачи</span>
+                                                    <div class="toolbar" style="">
+                                                        <div class="tool collapsible" id="collapseBtn" tabindex="0">
+                                                            <div class="tool-icon has-icon"></div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div style="background-color:#ffffff;" class="jq-panel-body-default jq-body-panel" id="filterBody">
+                                                    <!-- Filter content -->
+                                                    <div class="element group vertical-group" style="padding:4px 0;">
+                                                        <!-- Row 1: grouped number/date filters -->
+                                                        <div id="filterGroupRow" class="element group horizontal-group" style="flex:none;">
+                                                            <!-- Сумма просрочки -->
+                                                            <div class="element group vertical-group cell-3">
+                                                                <div class="element widget widget-ext-display" style="min-height:34px;max-height:34px;">
+                                                                    <div style="width:100%;background-color:#fff;" class="vcm-widget-wrapper jq-style-default jq-display">
+                                                                        <div class="field_container label-align-top text-align-left">
+                                                                            <div class="center row" style="margin-left:2px;margin-right:2px;">
+                                                                                <div class="fields-wrapper" style="margin-left:0;"><input class="text_field tooltip-area" type="text" readonly tabindex="-1" style="color:#333;background-color:#fff;" value="Сумма просрочки"></div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="element widget widget-summ" style="min-height:34px;max-height:34px;">
+                                                                    <div style="width:100%;" class="vcm-widget-wrapper jq-style-default jq-summ">
+                                                                        <div class="field_container empty label-align-left text-align-right">
+                                                                            <div class="center row" style="margin-left:2px;margin-right:2px;">
+                                                                                <span class="label" style="width:36px;">От</span>
+                                                                                <div class="fields-wrapper input-border" style="margin-left:36px;"><input class="text_field summ tooltip-area" type="text" maxlength="1024" value=""></div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="element widget widget-summ" style="min-height:34px;max-height:34px;">
+                                                                    <div style="width:100%;" class="vcm-widget-wrapper jq-style-default jq-summ">
+                                                                        <div class="field_container empty label-align-left text-align-right">
+                                                                            <div class="center row" style="margin-left:2px;margin-right:2px;">
+                                                                                <span class="label" style="width:38px;">До</span>
+                                                                                <div class="fields-wrapper input-border" style="margin-left:38px;"><input class="text_field summ tooltip-area" type="text" maxlength="1024" value=""></div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <!-- Spacer -->
+                                                            <div class="element widget widget-emptyfield cell-1" style="min-width:10px;"></div>
+                                                            <!-- Срок просрочки -->
+                                                            <div class="element group vertical-group cell-3">
+                                                                <div class="element widget widget-ext-display" style="min-height:34px;max-height:34px;">
+                                                                    <div style="width:100%;background-color:#fff;" class="vcm-widget-wrapper jq-style-default jq-display">
+                                                                        <div class="field_container label-align-top text-align-left">
+                                                                            <div class="center row" style="margin-left:2px;margin-right:2px;">
+                                                                                <div class="fields-wrapper" style="margin-left:0;"><input class="text_field tooltip-area" type="text" readonly tabindex="-1" style="color:#333;background-color:#fff;" value="Срок просрочки"></div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="element widget widget-ext-number" style="min-height:34px;max-height:34px;">
+                                                                    <div style="width:100%;" class="vcm-widget-wrapper jq-style-default jq-number">
+                                                                        <div class="field_container empty label-align-top text-align-right">
+                                                                            <div class="center row" style="margin-left:2px;margin-right:2px;">
+                                                                                <div class="fields-wrapper" style="margin-left:0;"><div class="field-wrapper input-border"><input class="text_field number tooltip-area" type="text" maxlength="1024" placeholder="От" value=""></div></div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="element widget widget-ext-number" style="min-height:34px;max-height:34px;">
+                                                                    <div style="width:100%;" class="vcm-widget-wrapper jq-style-default jq-number">
+                                                                        <div class="field_container empty label-align-top text-align-right">
+                                                                            <div class="center row" style="margin-left:2px;margin-right:2px;">
+                                                                                <div class="fields-wrapper" style="margin-left:0;"><div class="field-wrapper input-border"><input class="text_field number tooltip-area" type="text" maxlength="1024" placeholder="До" value=""></div></div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <!-- Spacer -->
+                                                            <div class="element widget widget-emptyfield cell-1" style="min-width:10px;"></div>
+                                                            <!-- Срок исполнения -->
+                                                            <div class="element group vertical-group cell-3">
+                                                                <div class="element widget widget-ext-display" style="min-height:34px;max-height:34px;">
+                                                                    <div style="width:100%;background-color:#fff;" class="vcm-widget-wrapper jq-style-default jq-display">
+                                                                        <div class="field_container label-align-top text-align-left">
+                                                                            <div class="center row" style="margin-left:2px;margin-right:2px;">
+                                                                                <div class="fields-wrapper" style="margin-left:0;"><input class="text_field tooltip-area" type="text" readonly tabindex="-1" style="color:#333;background-color:#fff;" value="Срок исполнения"></div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="element widget widget-ext-date" style="min-height:34px;max-height:34px;">
+                                                                    <div style="width:100%;" class="vcm-widget-wrapper jq-style-default jq-date">
+                                                                        <div class="field_container empty label-align-top text-align-left">
+                                                                            <div class="center row" style="margin-left:2px;margin-right:2px;">
+                                                                                <div class="fields-wrapper" style="margin-left:0;">
+                                                                                    <div class="field-wrapper input-border">
+                                                                                        <input class="text_field date tooltip-area" type="text" style="width:138px" maxlength="20" placeholder="От">
+                                                                                        <div class="datepicker-trigger unselectable"></div>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="element widget widget-ext-date" style="min-height:34px;max-height:34px;">
+                                                                    <div style="width:100%;" class="vcm-widget-wrapper jq-style-default jq-date">
+                                                                        <div class="field_container empty label-align-top text-align-left">
+                                                                            <div class="center row" style="margin-left:2px;margin-right:2px;">
+                                                                                <div class="fields-wrapper" style="margin-left:0;">
+                                                                                    <div class="field-wrapper input-border">
+                                                                                        <input class="text_field date tooltip-area" type="text" style="width:138px" maxlength="20" placeholder="До">
+                                                                                        <div class="datepicker-trigger unselectable"></div>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <!-- Spacer -->
+                                                            <div class="element widget widget-emptyfield cell-1" style="min-width:10px;"></div>
+                                                            <!-- Дата воздействий -->
+                                                            <div class="element group vertical-group cell-4">
+                                                                <div class="element widget widget-ext-display" style="min-height:34px;max-height:34px;">
+                                                                    <div style="width:100%;background-color:#fff;" class="vcm-widget-wrapper jq-style-default jq-display">
+                                                                        <div class="field_container label-align-top text-align-left">
+                                                                            <div class="center row" style="margin-left:2px;margin-right:2px;">
+                                                                                <div class="fields-wrapper" style="margin-left:0;"><input class="text_field tooltip-area" type="text" readonly tabindex="-1" style="color:#333;background-color:#fff;" value="Дата воздействий"></div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="element widget widget-ext-date" style="min-height:34px;max-height:34px;">
+                                                                    <div style="width:100%;" class="vcm-widget-wrapper jq-style-default jq-date">
+                                                                        <div class="field_container empty label-align-top text-align-left">
+                                                                            <div class="center row" style="margin-left:2px;margin-right:2px;">
+                                                                                <div class="fields-wrapper" style="margin-left:0;">
+                                                                                    <div class="field-wrapper input-border">
+                                                                                        <input class="text_field date tooltip-area" type="text" style="width:138px" maxlength="20" placeholder="Дата платежа">
+                                                                                        <div class="datepicker-trigger unselectable"></div>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="element widget widget-ext-date" style="min-height:34px;max-height:34px;">
+                                                                    <div style="width:100%;" class="vcm-widget-wrapper jq-style-default jq-date">
+                                                                        <div class="field_container empty label-align-top text-align-left">
+                                                                            <div class="center row" style="margin-left:2px;margin-right:2px;">
+                                                                                <div class="fields-wrapper" style="margin-left:0;">
+                                                                                    <div class="field-wrapper input-border">
+                                                                                        <input class="text_field date tooltip-area" type="text" style="width:138px" maxlength="20" placeholder="Дата посл. звонка">
+                                                                                        <div class="datepicker-trigger unselectable"></div>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <!-- Spacer -->
+                                                            <div class="element widget widget-emptyfield cell-1" style="min-width:10px;"></div>
+                                                            <!-- Дата создания -->
+                                                            <div class="element group vertical-group cell-3">
+                                                                <div class="element widget widget-ext-display" style="min-height:34px;max-height:34px;">
+                                                                    <div style="width:100%;background-color:#fff;" class="vcm-widget-wrapper jq-style-default jq-display">
+                                                                        <div class="field_container label-align-top text-align-left">
+                                                                            <div class="center row" style="margin-left:2px;margin-right:2px;">
+                                                                                <div class="fields-wrapper" style="margin-left:0;"><input class="text_field tooltip-area" type="text" readonly tabindex="-1" style="color:#333;background-color:#fff;" value="Дата создания"></div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="element widget widget-ext-date" style="min-height:34px;max-height:34px;">
+                                                                    <div style="width:100%;" class="vcm-widget-wrapper jq-style-default jq-date">
+                                                                        <div class="field_container empty label-align-top text-align-left">
+                                                                            <div class="center row" style="margin-left:2px;margin-right:2px;">
+                                                                                <div class="fields-wrapper" style="margin-left:0;">
+                                                                                    <div class="field-wrapper input-border">
+                                                                                        <input class="text_field date tooltip-area" type="text" style="width:138px" maxlength="20" placeholder="От">
+                                                                                        <div class="datepicker-trigger unselectable"></div>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="element widget widget-ext-date" style="min-height:34px;max-height:34px;">
+                                                                    <div style="width:100%;" class="vcm-widget-wrapper jq-style-default jq-date">
+                                                                        <div class="field_container empty label-align-top text-align-left">
+                                                                            <div class="center row" style="margin-left:2px;margin-right:2px;">
+                                                                                <div class="fields-wrapper" style="margin-left:0;">
+                                                                                    <div class="field-wrapper input-border">
+                                                                                        <input class="text_field date tooltip-area" type="text" style="width:138px" maxlength="20" placeholder="До">
+                                                                                        <div class="datepicker-trigger unselectable"></div>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                        <!-- Row 2: text inputs + selects + buttons -->
+                                                        <div id="filterTextRow" class="element group horizontal-group" style="flex:none;margin-top:4px;">
+                                                            <!-- ФИО Клиента -->
+                                                            <div class="element widget widget-ext-textfield" style="min-width:130px;min-height:34px;max-height:34px;">
+                                                                <div style="width:100%;" class="vcm-widget-wrapper jq-style-default">
+                                                                    <div class="field_container empty label-align-top text-align-left">
+                                                                        <div class="center row" style="margin-left:2px;margin-right:2px;">
+                                                                            <div class="fields-wrapper input-border" style="margin-left:0;"><input class="text_field tooltip-area" type="text" maxlength="1024" placeholder="ФИО Клиента" value=""></div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <!-- Номер договора -->
+                                                            <div class="element widget widget-ext-textfield" style="min-width:120px;min-height:34px;max-height:34px;">
+                                                                <div style="width:100%;" class="vcm-widget-wrapper jq-style-default">
+                                                                    <div class="field_container empty label-align-top text-align-left">
+                                                                        <div class="center row" style="margin-left:2px;margin-right:2px;">
+                                                                            <div class="fields-wrapper input-border" style="margin-left:0;"><input class="text_field tooltip-area" type="text" maxlength="1024" placeholder="Номер договора" value=""></div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <!-- ID договора -->
+                                                            <div class="element widget widget-ext-textfield" style="min-width:100px;min-height:34px;max-height:34px;">
+                                                                <div style="width:100%;" class="vcm-widget-wrapper jq-style-default">
+                                                                    <div class="field_container empty label-align-top text-align-left">
+                                                                        <div class="center row" style="margin-left:2px;margin-right:2px;">
+                                                                            <div class="fields-wrapper input-border" style="margin-left:0;"><input class="text_field tooltip-area" type="text" maxlength="1024" placeholder="ID договора" value=""></div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <!-- Номер телефона -->
+                                                            <div class="element widget widget-ext-textfield" style="min-width:120px;min-height:34px;max-height:34px;">
+                                                                <div style="width:100%;" class="vcm-widget-wrapper jq-style-default">
+                                                                    <div class="field_container empty label-align-top text-align-left">
+                                                                        <div class="center row" style="margin-left:2px;margin-right:2px;">
+                                                                            <div class="fields-wrapper input-border" style="margin-left:0;"><input class="text_field tooltip-area" type="text" maxlength="1024" placeholder="Номер телефона" value=""></div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <!-- Номер задачи -->
+                                                            <div class="element widget widget-ext-textfield" style="min-width:100px;min-height:34px;max-height:34px;">
+                                                                <div style="width:100%;" class="vcm-widget-wrapper jq-style-default">
+                                                                    <div class="field_container empty label-align-top text-align-left">
+                                                                        <div class="center row" style="margin-left:2px;margin-right:2px;">
+                                                                            <div class="fields-wrapper input-border" style="margin-left:0;"><input class="text_field tooltip-area" type="text" maxlength="1024" placeholder="Номер задачи" value=""></div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <!-- Наименование ЮЛ -->
+                                                            <div class="element widget widget-ext-textfield" style="min-width:130px;min-height:34px;max-height:34px;">
+                                                                <div style="width:100%;" class="vcm-widget-wrapper jq-style-default">
+                                                                    <div class="field_container empty label-align-top text-align-left">
+                                                                        <div class="center row" style="margin-left:2px;margin-right:2px;">
+                                                                            <div class="fields-wrapper input-border" style="margin-left:0;"><input class="text_field tooltip-area" type="text" maxlength="1024" placeholder="Наименование ЮЛ" value=""></div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <!-- ID Обеспечения -->
+                                                            <div class="element widget widget-ext-textfield" style="min-width:110px;min-height:34px;max-height:34px;">
+                                                                <div style="width:100%;" class="vcm-widget-wrapper jq-style-default">
+                                                                    <div class="field_container empty label-align-top text-align-left">
+                                                                        <div class="center row" style="margin-left:2px;margin-right:2px;">
+                                                                            <div class="fields-wrapper input-border" style="margin-left:0;"><input class="text_field tooltip-area" type="text" maxlength="1024" placeholder="ID Обеспечения" value=""></div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <!-- Наим. залога -->
+                                                            <div class="element widget widget-ext-textfield" style="min-width:110px;min-height:34px;max-height:34px;">
+                                                                <div style="width:100%;" class="vcm-widget-wrapper jq-style-default">
+                                                                    <div class="field_container empty label-align-top text-align-left">
+                                                                        <div class="center row" style="margin-left:2px;margin-right:2px;">
+                                                                            <div class="fields-wrapper input-border" style="margin-left:0;"><input class="text_field tooltip-area" type="text" maxlength="1024" placeholder="Наим. залога" value=""></div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <!-- Подразделение (select) -->
+                                                            <div class="element widget widget-ext-select" style="min-width:130px;min-height:34px;max-height:34px;">
+                                                                <div style="width:100%;" class="vcm-widget-wrapper jq-style-default jq-select">
+                                                                    <div class="field_container empty label-align-top text-align-left">
+                                                                        <div class="center row" style="margin-left:2px;margin-right:2px;">
+                                                                            <div class="fields-wrapper input-border" style="margin-left:0;">
+                                                                                <input class="text_field select tooltip-area" type="text" maxlength="1024" placeholder="Подразделение" value="" readonly>
+                                                                                <div class="dropdown-trigger unselectable"></div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <!-- Buttons -->
+                                                            <div id="buttonGroup">
+                                                                <div class="element widget widget-ext-button cell-noflex">
+                                                                    <div class="vcm-widget-wrapper stop-propagation-for-panel">
+                                                                        <div class="field_container">
+                                                                            <div class="button ui-button ui-widget additional" style="float:left;">
+                                                                                <span class="ui-button-text ui-button-in-line">СБРОСИТЬ</span>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="element widget widget-ext-button cell-noflex">
+                                                                    <div class="vcm-widget-wrapper stop-propagation-for-panel">
+                                                                        <div class="field_container">
+                                                                            <div class="button ui-button ui-widget main" style="float:right;">
+                                                                                <span class="ui-button-text ui-button-in-line">ПРИМЕНИТЬ</span>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Grid / Table -->
+                                        <div class="element widget widget-ext-grid" style="flex:1 1 auto;" data-control-name="task_table">
+                                            <div style="width:100%;" class="vcm-widget-wrapper jq_default__grid columns stop-propagation-for-panel">
+                                                <!-- Table title (mainheader) -->
+                                                <div class="ui-table-mainheader">
+                                                    <div class="ui-table-column-visibled">
+                                                        <div class="ui-table-column-visibled-cell active" style="display:inline-block;"></div>
+                                                        <div class="ui-table-column-visibled-cell active" style="display:inline-block;"></div>
+                                                        <div class="ui-table-column-visibled-cell active" style="display:inline-block;"></div>
+                                                        <div class="ui-table-column-visibled-cell active" style="display:inline-block;"></div>
+                                                        <div class="ui-table-column-visibled-cell active" style="display:inline-block;"></div>
+                                                        <div class="ui-table-column-visibled-cell active" style="display:inline-block;"></div>
+                                                        <div class="ui-table-column-visibled-cell active" style="display:inline-block;"></div>
+                                                        <div class="ui-table-column-visibled-cell active" style="display:inline-block;"></div>
+                                                        <div class="ui-table-column-visibled-cell active" style="display:inline-block;"></div>
+                                                        <div class="ui-table-column-visibled-cell active" style="display:inline-block;"></div>
+                                                        <div class="ui-table-column-visibled-cell active" style="display:inline-block;"></div>
+                                                        <div class="ui-table-column-visibled-cell active" style="display:inline-block;"></div>
+                                                    </div>
+                                                    <div class="ui-table-column-switcher" tabindex="0"></div>
+                                                </div>
+
+                                                <!-- Columns table -->
+                                                <div class="ui-columns-table">
+                                                    <!-- Table header -->
+                                                    <div class="ui-table-header">
+                                                        <div class="ui-table-header-content">
+                                                            <table class="ui-table">
+                                                                <thead>
+                                                                    <tr style="height:30px;">
+                                                                        <td class="ui-head-cell ui-table-sortable" data-columns-key="col_number" style="text-align:left;width:4.35%;">
+                                                                            <div class="ui-resizer"></div>
+                                                                            <div class="ui-arrow"><div class="inline-inner"><div class="ui-arrow-up"></div><div class="ui-arrow-down"></div></div><div class="inline-helper"></div></div>
+                                                                            <div class="content content-tt-cell">Номер</div>
+                                                                        </td>
+                                                                        <td class="ui-head-cell ui-table-sortable" data-columns-key="col_date" style="text-align:left;width:8.7%;">
+                                                                            <div class="ui-resizer"></div>
+                                                                            <div class="ui-arrow"><div class="inline-inner"><div class="ui-arrow-up"></div><div class="ui-arrow-down"></div></div><div class="inline-helper"></div></div>
+                                                                            <div class="content content-tt-cell">Дата создания</div>
+                                                                        </td>
+                                                                        <td class="ui-head-cell ui-table-sortable" data-columns-key="col_type" style="text-align:left;width:8.7%;">
+                                                                            <div class="ui-resizer"></div>
+                                                                            <div class="ui-arrow"><div class="inline-inner"><div class="ui-arrow-up"></div><div class="ui-arrow-down"></div></div><div class="inline-helper"></div></div>
+                                                                            <div class="content content-tt-cell">Тип задачи</div>
+                                                                        </td>
+                                                                        <td class="ui-head-cell ui-table-sortable" data-columns-key="col_signal" style="text-align:left;width:17.4%;">
+                                                                            <div class="ui-resizer"></div>
+                                                                            <div class="ui-arrow"><div class="inline-inner"><div class="ui-arrow-up"></div><div class="ui-arrow-down"></div></div><div class="inline-helper"></div></div>
+                                                                            <div class="content content-tt-cell">Вид мониторинга/сигнала</div>
+                                                                        </td>
+                                                                        <td class="ui-head-cell ui-table-sortable" data-columns-key="col_deadline" style="text-align:left;width:8.7%;">
+                                                                            <div class="ui-resizer"></div>
+                                                                            <div class="ui-arrow"><div class="inline-inner"><div class="ui-arrow-up"></div><div class="ui-arrow-down"></div></div><div class="inline-helper"></div></div>
+                                                                            <div class="content content-tt-cell">Срок выполнения</div>
+                                                                        </td>
+                                                                        <td class="ui-head-cell ui-table-sortable" data-columns-key="col_status" style="text-align:left;width:8.7%;">
+                                                                            <div class="ui-resizer"></div>
+                                                                            <div class="ui-arrow"><div class="inline-inner"><div class="ui-arrow-up"></div><div class="ui-arrow-down"></div></div><div class="inline-helper"></div></div>
+                                                                            <div class="content content-tt-cell">Статус задачи</div>
+                                                                        </td>
+                                                                        <td class="ui-head-cell ui-table-sortable" data-columns-key="col_obj" style="text-align:left;width:8.7%;">
+                                                                            <div class="ui-resizer"></div>
+                                                                            <div class="ui-arrow"><div class="inline-inner"><div class="ui-arrow-up"></div><div class="ui-arrow-down"></div></div><div class="inline-helper"></div></div>
+                                                                            <div class="content content-tt-cell">Объект мониторинга</div>
+                                                                        </td>
+                                                                        <td class="ui-head-cell ui-table-sortable" data-columns-key="col_credit" style="text-align:left;width:8.7%;">
+                                                                            <div class="ui-resizer"></div>
+                                                                            <div class="ui-arrow"><div class="inline-inner"><div class="ui-arrow-up"></div><div class="ui-arrow-down"></div></div><div class="inline-helper"></div></div>
+                                                                            <div class="content content-tt-cell">Кредит/Клиент/Обеспечение/Бизнес-план</div>
+                                                                        </td>
+                                                                        <td class="ui-head-cell ui-table-sortable" data-columns-key="col_exec" style="text-align:left;width:8.7%;">
+                                                                            <div class="ui-resizer"></div>
+                                                                            <div class="ui-arrow"><div class="inline-inner"><div class="ui-arrow-up"></div><div class="ui-arrow-down"></div></div><div class="inline-helper"></div></div>
+                                                                            <div class="content content-tt-cell">Исполнитель</div>
+                                                                        </td>
+                                                                        <td class="ui-head-cell ui-table-sortable" data-columns-key="col_verify" style="text-align:left;width:8.7%;">
+                                                                            <div class="ui-resizer"></div>
+                                                                            <div class="ui-arrow"><div class="inline-inner"><div class="ui-arrow-up"></div><div class="ui-arrow-down"></div></div><div class="inline-helper"></div></div>
+                                                                            <div class="content content-tt-cell">Проверяющий</div>
+                                                                        </td>
+                                                                        <td class="ui-head-cell ui-table-sortable" data-columns-key="col_cid" style="text-align:left;width:4.35%;">
+                                                                            <div class="ui-resizer"></div>
+                                                                            <div class="ui-arrow"><div class="inline-inner"><div class="ui-arrow-up"></div><div class="ui-arrow-down"></div></div><div class="inline-helper"></div></div>
+                                                                            <div class="content content-tt-cell">ID Обеспечений</div>
+                                                                        </td>
+                                                                        <td class="ui-head-cell ui-table-sortable" data-columns-key="col_branch" style="text-align:left;width:4.35%;">
+                                                                            <div class="ui-arrow"><div class="inline-inner"><div class="ui-arrow-up"></div><div class="ui-arrow-down"></div></div><div class="inline-helper"></div></div>
+                                                                            <div class="content content-tt-cell">Отделение</div>
+                                                                        </td>
+                                                                    </tr>
+                                                                </thead>
+                                                            </table>
+                                                        </div>
+                                                    </div>
+
+                                                    <!-- Table body -->
+                                                    <div class="ui-table-wrapper">
+                                                        <div class="ui-table-wrapper-content">
+                                                            <table class="ui-table">
+                                                                <colgroup>
+                                                                    <col style="width:4.35%"><col style="width:8.7%"><col style="width:8.7%"><col style="width:17.4%">
+                                                                    <col style="width:8.7%"><col style="width:8.7%"><col style="width:8.7%"><col style="width:8.7%">
+                                                                    <col style="width:8.7%"><col style="width:8.7%"><col style="width:4.35%"><col style="width:4.35%">
+                                                                </colgroup>
+                                                                <tbody id="tableBody"></tbody>
+                                                            </table>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <!-- Footer -->
+                                                <div class="ui-table-footer" style="height:40px;">
+                                                    <span class="ui-table-left-controls">
+                                                        <span class="ui-btn ui-btn-action btn-blue" data-name="refresh_tasks" data-tooltip="Обновить таблицу" style="display:inline-block;" tabindex="0"></span>
+                                                        <span class="ui-btn ui-btn-action btn-blue" data-name="export_tasks" data-tooltip="Выгрузить в Excel" style="display:inline-block;" tabindex="0">Выгрузить в Excel</span>
+                                                    </span>
+                                                    <span class="paginator-results">Строк 1 – 25 из 80</span>
+                                                    <span class="paginator-controls">
+                                                        <span class="ui-btn paginator-control paginator-control-prev paginator-control-disabled" data-columns-page="0"></span>
+                                                        <span class="ui-btn paginator-control paginator-control-active" data-columns-page="1">1</span>
+                                                        <span class="ui-btn paginator-control" tabindex="0" data-columns-page="2">2</span>
+                                                        <span class="ui-btn paginator-control" tabindex="0" data-columns-page="3">3</span>
+                                                        <span class="ui-btn paginator-control" tabindex="0" data-columns-page="4">4</span>
+                                                        <span class="ui-btn paginator-control paginator-control-next" tabindex="0" data-columns-page="2"></span>
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Side panel overlay + menu -->
+            <div class="VCMTabPanel-frontcontainer">
+                <div class="ui-widget-overlay vcm-side-panel-overlay hidden" id="menuOverlay"></div>
+                <div class="vcm-side-panel vcm-side-left" style="width:min-content;" id="sidePanel">
+                    <div class="vcm-side-panel-content css-layout vcm-runtime">
+                        <div class="menu_wrap menu_tree menu_opens_right menu_floats_left">
+                            <ul>
+                                <li class="menu_item active-item" data-page="active_tasks">
+                                    <div class="menu_item_inner" style="color:#000;border-color:#7bcbf9;">
+                                        <span>Активные задачи</span>
+                                    </div>
+                                </li>
+                                <li class="menu_item" data-page="completed_tasks">
+                                    <div class="menu_item_inner" style="color:#000;border-color:#7bcbf9;">
+                                        <span>Завершённые задачи</span>
+                                    </div>
+                                </li>
+                                <li class="menu_item" data-page="main_page">
+                                    <div class="menu_item_inner" style="color:#000;border-color:#7bcbf9;">
+                                        <span>Карта мониторинга</span>
+                                    </div>
+                                </li>
+                                <li class="menu_item" data-page="settings">
+                                    <div class="menu_item_inner" style="color:#000;border-color:#7bcbf9;">
+                                        <span>Настройки</span>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // === Data ===
+        const data = [
+            { id:12, date:'05.11.2025', type:'Задача выездного мониторинга', signal:'Мониторинг кредитного обеспечения', deadline:'19.11.2025', status:'Новая', obj:'Обеспечение', credit:'недвижимость', exec:'Эржена Э Э', verify:'', cid:'test4', branch:'Жиззах минтақавий БХО', bg:'#ed5a5a' },
+            { id:13, date:'05.11.2025', type:'Задача выездного мониторинга', signal:'Мониторинг кредитного обеспечения', deadline:'19.11.2025', status:'Новая', obj:'Обеспечение', credit:'недвижимость', exec:"Javoxir Sodiq o'g'li Sobirov", verify:'', cid:'test3', branch:'Жиззах минтақавий БХО', bg:'#ed5a5a' },
+            { id:14, date:'05.11.2025', type:'Задача выездного мониторинга', signal:'Мониторинг кредитного обеспечения', deadline:'19.11.2025', status:'Новая', obj:'Обеспечение', credit:'недвижимость', exec:'КАД В Захарова', verify:'', cid:'test2', branch:'Жиззах минтақавий БХО', bg:'#ed5a5a' },
+            { id:15, date:'05.11.2025', type:'Задача выездного мониторинга', signal:'Мониторинг кредитного обеспечения', deadline:'19.11.2025', status:'Новая', obj:'Обеспечение', credit:'недвижимость', exec:'kad_test kad_test', verify:'', cid:'test1', branch:'Жиззах минтақавий БХО', bg:'#ed5a5a' },
+            { id:158, date:'11.11.2025', type:'Задача выездного мониторинга', signal:'Инспекционный', deadline:'25.11.2025', status:'Новая', obj:'Клиент', credit:'test1', exec:'', verify:'', cid:'', branch:'Жиззах минтақавий БХО', bg:'#ed5a5a' },
+            { id:159, date:'11.11.2025', type:'Задача выездного мониторинга', signal:'Инспекционный', deadline:'25.11.2025', status:'Новая', obj:'Клиент', credit:'test2', exec:'', verify:'', cid:'', branch:'Жиззах минтақавий БХО', bg:'#ed5a5a' },
+            { id:160, date:'11.11.2025', type:'Задача выездного мониторинга', signal:'Мониторинг кредитного обеспечения', deadline:'25.11.2025', status:'Новая', obj:'Обеспечение', credit:'недвижимость', exec:'', verify:'', cid:'test3', branch:'Жиззах минтақавий БХО', bg:'#f5c242' },
+            { id:161, date:'11.11.2025', type:'Задача выездного мониторинга', signal:'Мониторинг кредитного обеспечения', deadline:'25.11.2025', status:'Новая', obj:'Обеспечение', credit:'недвижимость', exec:'', verify:'', cid:'test4', branch:'Жиззах минтақавий БХО', bg:'#f5c242' },
+            { id:162, date:'12.11.2025', type:'Задача выездного мониторинга', signal:'Инспекционный', deadline:'26.11.2025', status:'Новая', obj:'Клиент и Обеспечение', credit:'test1', exec:'Эржена Э Э', verify:'', cid:'test1', branch:'Жиззах минтақавий БХО', bg:'#ed5a5a' },
+            { id:163, date:'12.11.2025', type:'Задача выездного мониторинга', signal:'Мониторинг кредитного обеспечения', deadline:'26.11.2025', status:'Новая', obj:'Обеспечение', credit:'недвижимость', exec:"Javoxir Sodiq o'g'li Sobirov", verify:'', cid:'test2', branch:'Жиззах минтақавий БХО', bg:'#ed5a5a' },
+            { id:164, date:'13.11.2025', type:'Задача выездного мониторинга', signal:'Инспекционный', deadline:'27.11.2025', status:'Новая', obj:'Клиент', credit:'test1', exec:'', verify:'', cid:'', branch:'Жиззах минтақавий БХО', bg:'#f5a623' },
+            { id:165, date:'13.11.2025', type:'Задача выездного мониторинга', signal:'Мониторинг кредитного обеспечения', deadline:'27.11.2025', status:'Новая', obj:'Обеспечение', credit:'недвижимость', exec:'КАД В Захарова', verify:'', cid:'test3', branch:'Жиззах минтақавий БХО', bg:'' },
+            { id:166, date:'14.11.2025', type:'Задача выездного мониторинга', signal:'Инспекционный', deadline:'28.11.2025', status:'Новая', obj:'Клиент и Обеспечение', credit:'test2', exec:'', verify:'', cid:'test4', branch:'Жиззах минтақавий БХО', bg:'#f0f0f0' },
+            { id:167, date:'14.11.2025', type:'Задача выездного мониторинга', signal:'Мониторинг кредитного обеспечения', deadline:'28.11.2025', status:'Новая', obj:'Обеспечение', credit:'недвижимость', exec:'kad_test kad_test', verify:'', cid:'test1', branch:'Жиззах минтақавий БХО', bg:'#ed5a5a' },
+            { id:168, date:'15.11.2025', type:'Задача выездного мониторинга', signal:'Инспекционный', deadline:'29.11.2025', status:'Новая', obj:'Клиент', credit:'test1', exec:'Эржена Э Э', verify:'', cid:'', branch:'Жиззах минтақавий БХО', bg:'#ed5a5a' },
+            { id:169, date:'15.11.2025', type:'Задача выездного мониторинга', signal:'Мониторинг кредитного обеспечения', deadline:'29.11.2025', status:'Новая', obj:'Обеспечение', credit:'недвижимость', exec:'', verify:'', cid:'test2', branch:'Жиззах минтақавий БХО', bg:'#f5c242' },
+            { id:170, date:'16.11.2025', type:'Задача выездного мониторинга', signal:'Инспекционный', deadline:'30.11.2025', status:'Новая', obj:'Клиент', credit:'test2', exec:'', verify:'', cid:'', branch:'Жиззах минтақавий БХО', bg:'#ed5a5a' },
+            { id:171, date:'16.11.2025', type:'Задача выездного мониторинга', signal:'Мониторинг кредитного обеспечения', deadline:'30.11.2025', status:'Новая', obj:'Обеспечение', credit:'недвижимость', exec:"Javoxir Sodiq o'g'li Sobirov", verify:'', cid:'test3', branch:'Жиззах минтақавий БХО', bg:'#ed5a5a' },
+            { id:172, date:'17.11.2025', type:'Задача выездного мониторинга', signal:'Инспекционный', deadline:'01.12.2025', status:'Новая', obj:'Клиент и Обеспечение', credit:'test1', exec:'', verify:'', cid:'test4', branch:'Жиззах минтақавий БХО', bg:'#f5a623' },
+            { id:173, date:'17.11.2025', type:'Задача выездного мониторинга', signal:'Мониторинг кредитного обеспечения', deadline:'01.12.2025', status:'Новая', obj:'Обеспечение', credit:'недвижимость', exec:'КАД В Захарова', verify:'', cid:'test1', branch:'Жиззах минтақавий БХО', bg:'#ed5a5a' },
+            { id:174, date:'18.11.2025', type:'Задача выездного мониторинга', signal:'Инспекционный', deadline:'02.12.2025', status:'Новая', obj:'Клиент', credit:'test2', exec:'kad_test kad_test', verify:'', cid:'', branch:'Жиззах минтақавий БХО', bg:'#ed5a5a' },
+            { id:175, date:'18.11.2025', type:'Задача выездного мониторинга', signal:'Мониторинг кредитного обеспечения', deadline:'02.12.2025', status:'Новая', obj:'Обеспечение', credit:'недвижимость', exec:'', verify:'', cid:'test2', branch:'Жиззах минтақавий БХО', bg:'#f0f0f0' },
+            { id:176, date:'19.11.2025', type:'Задача выездного мониторинга', signal:'Инспекционный', deadline:'03.12.2025', status:'Новая', obj:'Клиент', credit:'test1', exec:'Эржена Э Э', verify:'', cid:'', branch:'Жиззах минтақавий БХО', bg:'#ed5a5a' },
+            { id:177, date:'19.11.2025', type:'Задача выездного мониторинга', signal:'Мониторинг кредитного обеспечения', deadline:'03.12.2025', status:'Новая', obj:'Обеспечение', credit:'недвижимость', exec:'', verify:'', cid:'test3', branch:'Жиззах минтақавий БХО', bg:'#f5c242' },
+            { id:178, date:'20.11.2025', type:'Задача выездного мониторинга', signal:'Инспекционный', deadline:'04.12.2025', status:'Новая', obj:'Клиент и Обеспечение', credit:'test2', exec:'', verify:'', cid:'test4', branch:'Жиззах минтақавий БХО', bg:'#ed5a5a' },
+        ];
+
+        // === Render table rows ===
+        const tbody = document.getElementById('tableBody');
+        function makeCell(value, isFirst) {
+            const cls = isFirst ? 'firstCell' : '';
+            return '<td class="' + cls + '" style="text-align:left;color:#000;height:100%;">' +
+                '<div class="cell-border">' +
+                '<div style="min-height:30px;" class="cell-inner content-tt-cell">' +
+                '<span>' + (value || '') + '</span>' +
+                '</div></div></td>';
+        }
+
+        data.forEach(function(r) {
+            var tr = document.createElement('tr');
+            tr.className = 'user-def-';
+            if (r.bg) {
+                tr.style.backgroundColor = r.bg;
+            }
+            tr.style.height = '100%';
+            tr.innerHTML =
+                makeCell(r.id, true) +
+                makeCell(r.date) +
+                makeCell(r.type) +
+                makeCell(r.signal) +
+                makeCell(r.deadline) +
+                makeCell(r.status) +
+                makeCell(r.obj) +
+                makeCell(r.credit) +
+                makeCell(r.exec) +
+                makeCell(r.verify) +
+                makeCell(r.cid) +
+                makeCell(r.branch);
+            tr.onclick = function() {
+                document.querySelectorAll('#tableBody tr').forEach(function(x) { x.classList.remove('selected-row'); });
+                this.classList.add('selected-row');
+            };
+            tbody.appendChild(tr);
+        });
+
+        // === Burger menu ===
+        document.getElementById('burgerBtn').onclick = function() {
+            document.getElementById('sidePanel').classList.add('open');
+            document.getElementById('menuOverlay').classList.remove('hidden');
+            document.getElementById('menuOverlay').classList.add('visible');
+        };
+        document.getElementById('menuOverlay').onclick = function() {
+            document.getElementById('sidePanel').classList.remove('open');
+            document.getElementById('menuOverlay').classList.add('hidden');
+            document.getElementById('menuOverlay').classList.remove('visible');
+        };
+
+        // === Filter collapse ===
+        document.getElementById('filterHeader').onclick = function() {
+            var body = document.getElementById('filterBody');
+            var btn = document.getElementById('collapseBtn');
+            body.classList.toggle('collapsed-body');
+            btn.classList.toggle('collapsed');
+        };
+
+        // === Paginator ===
+        document.querySelectorAll('.paginator-controls .paginator-control').forEach(function(btn) {
+            btn.onclick = function() {
+                if (this.classList.contains('paginator-control-disabled')) return;
+                if (this.classList.contains('paginator-control-prev') || this.classList.contains('paginator-control-next')) return;
+                document.querySelectorAll('.paginator-control').forEach(function(x) { x.classList.remove('paginator-control-active'); });
+                this.classList.add('paginator-control-active');
+            };
+        });
+
+        // === Side menu items ===
+        document.querySelectorAll('.menu_item').forEach(function(m) {
+            m.onclick = function() {
+                document.querySelectorAll('.menu_item').forEach(function(x) { x.classList.remove('active-item'); });
+                this.classList.add('active-item');
+                document.getElementById('sidePanel').classList.remove('open');
+                document.getElementById('menuOverlay').classList.add('hidden');
+                document.getElementById('menuOverlay').classList.remove('visible');
+            };
+        });
+    </script>
+</body>
+</html>

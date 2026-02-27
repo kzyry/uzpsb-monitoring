@@ -1,0 +1,1820 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Акт инвестиционного мониторинга</title>
+    <link href="https://cdn.jsdelivr.net/npm/vuetify@3.4.0/dist/vuetify.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/@mdi/font@7.3.67/css/materialdesignicons.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: #f5f5f5;
+            min-height: 100vh;
+        }
+
+        .v-application {
+            background: transparent !important;
+        }
+
+        /* Simple tabs design */
+        .custom-tabs-container {
+            background: white;
+            padding: 16px;
+            margin-bottom: 20px;
+        }
+
+        .tabs-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 6px;
+            width: 100%;
+        }
+
+        .tab-button {
+            padding: 6px 10px;
+            border-radius: 4px;
+            background: transparent;
+            border: 1px solid #e0e0e0;
+            color: #666;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: center;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .tab-button:hover {
+            background: #f5f5f5;
+            border-color: #1976d2;
+            color: #1976d2;
+        }
+
+        .tab-button.active {
+            background: #1976d2;
+            border-color: #1976d2;
+            color: white;
+        }
+
+        /* Required field indicator */
+        .required-field .v-label {
+            position: relative;
+        }
+
+        .required-field .v-label::after {
+            content: ' *';
+            color: #d32f2f;
+            font-weight: 500;
+        }
+
+        /* Readonly fields */
+        .readonly-field .v-field {
+            background: #fafafa !important;
+            cursor: not-allowed;
+        }
+
+        /* Section titles */
+        .section-title {
+            font-size: 18px;
+            font-weight: 500;
+            margin-bottom: 16px;
+            color: #333;
+        }
+
+        .subsection-title {
+            font-size: 16px;
+            font-weight: 500;
+            margin-top: 16px;
+            margin-bottom: 12px;
+            color: #555;
+        }
+
+        /* Progress indicator */
+        .progress-info {
+            margin-bottom: 16px;
+            padding: 12px;
+            background: white;
+            border-radius: 4px;
+        }
+
+        /* Simple table hover */
+        .v-data-table tbody tr:hover {
+            background: #fafafa;
+        }
+
+        /* Form section styling */
+        .form-section {
+            padding: 20px;
+            background: white;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 960px) {
+            .tabs-grid {
+                grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            }
+        }
+
+        /* Floating Action Button */
+        .fab-container {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            z-index: 1000;
+        }
+
+        .fab {
+            width: 56px !important;
+            height: 56px !important;
+            border-radius: 50% !important;
+            background: #1976d2 !important;
+            color: white !important;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.06) !important;
+        }
+
+        .export-badge {
+            background: #4caf50;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            margin-left: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <v-app>
+            <!-- App Bar -->
+            <v-app-bar elevation="2" color="primary">
+                <v-app-bar-nav-icon @click="drawer = !drawer"></v-app-bar-nav-icon>
+                <v-app-bar-title>HIVE Monitoring</v-app-bar-title>
+                <v-spacer></v-spacer>
+                <v-btn icon>
+                    <v-icon>mdi-magnify</v-icon>
+                </v-btn>
+                <v-btn icon>
+                    <v-icon>mdi-bell</v-icon>
+                </v-btn>
+            </v-app-bar>
+
+            <!-- Navigation Drawer -->
+            <v-navigation-drawer v-model="drawer" temporary>
+                <v-list>
+                    <v-list-item>
+                        <v-list-item-content>
+                            <v-list-item-title class="text-h6">Навигация</v-list-item-title>
+                        </v-list-item-content>
+                    </v-list-item>
+                    <v-divider></v-divider>
+
+                    <!-- Обычные пункты меню -->
+                    <template v-for="item in menuItems" :key="item.title">
+                        <v-list-group v-if="item.submenu">
+                            <template v-slot:activator="{ props }">
+                                <v-list-item v-bind="props">
+                                    <template v-slot:prepend>
+                                        <v-icon>{{ item.icon }}</v-icon>
+                                    </template>
+                                    <v-list-item-title>{{ item.title }}</v-list-item-title>
+                                </v-list-item>
+                            </template>
+
+                            <v-list-item v-for="subitem in item.submenu"
+                                         :key="subitem.title"
+                                         :href="subitem.link"
+                                         link
+                                         density="compact"
+                                         style="padding-left: 24px">
+                                <template v-slot:prepend>
+                                    <v-icon size="small">{{ subitem.icon }}</v-icon>
+                                </template>
+                                <v-list-item-title>{{ subitem.title }}</v-list-item-title>
+                            </v-list-item>
+                        </v-list-group>
+
+                        <v-list-item v-else link>
+                            <template v-slot:prepend>
+                                <v-icon>{{ item.icon }}</v-icon>
+                            </template>
+                            <v-list-item-title>{{ item.title }}</v-list-item-title>
+                        </v-list-item>
+                    </template>
+                </v-list>
+            </v-navigation-drawer>
+
+            <v-main>
+                <v-container fluid style="max-width: 1400px;">
+                    <!-- Header -->
+                    <v-card elevation="1" class="mb-4">
+                        <v-card-text>
+                            <h1 style="font-size: 24px; font-weight: 500; margin-bottom: 8px;">Акт инвестиционного мониторинга</h1>
+                            <p style="color: #666; font-size: 14px;">{{ formData.header.companyName || 'Заполните информацию о компании' }} • Кредит №{{ formData.header.creditNumber || '—' }}</p>
+
+                            <!-- Action Buttons -->
+                            <v-row class="mt-4">
+                                <v-col cols="auto">
+                                    <v-btn color="primary" @click="saveForm" prepend-icon="mdi-content-save">
+                                        Сохранить
+                                    </v-btn>
+                                </v-col>
+                                <v-col cols="auto">
+                                    <v-btn variant="outlined" @click="resetForm" prepend-icon="mdi-refresh">
+                                        Сбросить
+                                    </v-btn>
+                                </v-col>
+                                <v-spacer></v-spacer>
+                                <v-col cols="auto">
+                                    <v-btn color="success" @click="generateDocument" prepend-icon="mdi-file-document-check">
+                                        Сформировать акт
+                                    </v-btn>
+                                </v-col>
+                            </v-row>
+                        </v-card-text>
+                    </v-card>
+
+                    <!-- Progress Indicator -->
+                    <v-card elevation="1" class="progress-info mb-4">
+                        <v-card-text>
+                            <div class="d-flex justify-space-between align-center mb-2">
+                                <span>Прогресс заполнения</span>
+                                <span style="font-weight: 500;">{{ progressPercentage }}%</span>
+                            </div>
+                            <v-progress-linear
+                                :model-value="progressPercentage"
+                                color="primary"
+                                height="8"
+                                rounded
+                            ></v-progress-linear>
+                        </v-card-text>
+                    </v-card>
+
+                    <!-- Tabs Navigation -->
+                    <v-card elevation="1" class="custom-tabs-container">
+                        <div class="tabs-grid">
+                            <button
+                                v-for="(section, index) in sections"
+                                :key="index"
+                                :class="['tab-button', { active: activeTab === index }]"
+                                @click="activeTab = index"
+                            >
+                                {{ index + 1 }}. {{ section.title }}
+                            </button>
+                        </div>
+                    </v-card>
+
+                    <!-- Tab Content -->
+                    <v-card elevation="1">
+                        <v-window v-model="activeTab">
+
+                            <!-- Tab 0: Заголовок -->
+                            <v-window-item :value="0">
+                                <div class="form-section">
+                                    <h3 class="section-title">Заголовок акта</h3>
+                                    <v-row>
+                                        <v-col cols="12" md="6">
+                                            <v-text-field
+                                                v-model="formData.header.companyName"
+                                                label="Наименование юридического лица"
+                                                variant="outlined"
+                                                density="compact"
+                                                readonly
+                                                class="readonly-field"
+                                            ></v-text-field>
+                                        </v-col>
+                                        <v-col cols="12" md="6">
+                                            <v-text-field
+                                                v-model="formData.header.territorialOffice"
+                                                label="Территориальное управление"
+                                                variant="outlined"
+                                                density="compact"
+                                            ></v-text-field>
+                                        </v-col>
+                                        <v-col cols="12" md="4">
+                                            <v-text-field
+                                                v-model="formData.header.cbu"
+                                                label="ЦБУ"
+                                                variant="outlined"
+                                                density="compact"
+                                                readonly
+                                                class="readonly-field"
+                                            ></v-text-field>
+                                        </v-col>
+                                        <v-col cols="12" md="4">
+                                            <v-autocomplete
+                                                v-model="formData.header.monitoringEmployee"
+                                                :items="employees"
+                                                label="Сотрудник мониторинга"
+                                                variant="outlined"
+                                                density="compact"
+                                            ></v-autocomplete>
+                                        </v-col>
+                                        <v-col cols="12" md="4">
+                                            <v-text-field
+                                                v-model="formData.header.monitoringDate"
+                                                label="Дата мониторинга"
+                                                type="date"
+                                                variant="outlined"
+                                                density="compact"
+                                            ></v-text-field>
+                                        </v-col>
+                                        <v-col cols="12" md="3">
+                                            <v-text-field
+                                                v-model="formData.header.clientId"
+                                                label="ID клиента"
+                                                variant="outlined"
+                                                density="compact"
+                                                readonly
+                                                class="readonly-field"
+                                            ></v-text-field>
+                                        </v-col>
+                                        <v-col cols="12" md="3">
+                                            <v-text-field
+                                                v-model="formData.header.creditNumber"
+                                                label="Номер кредита"
+                                                variant="outlined"
+                                                density="compact"
+                                                readonly
+                                                class="readonly-field"
+                                            ></v-text-field>
+                                        </v-col>
+                                        <v-col cols="12" md="2">
+                                            <v-text-field
+                                                v-model="formData.header.rateUSD"
+                                                label="Курс USD"
+                                                type="number"
+                                                variant="outlined"
+                                                density="compact"
+                                            ></v-text-field>
+                                        </v-col>
+                                        <v-col cols="12" md="2">
+                                            <v-text-field
+                                                v-model="formData.header.rateEUR"
+                                                label="Курс EUR"
+                                                type="number"
+                                                variant="outlined"
+                                                density="compact"
+                                            ></v-text-field>
+                                        </v-col>
+                                        <v-col cols="12" md="2">
+                                            <v-text-field
+                                                v-model="formData.header.rateRUB"
+                                                label="Курс RUB"
+                                                type="number"
+                                                variant="outlined"
+                                                density="compact"
+                                            ></v-text-field>
+                                        </v-col>
+                                    </v-row>
+                                </div>
+                            </v-window-item>
+
+                            <!-- Tab 1: Общая информация -->
+                            <v-window-item :value="1">
+                                <div class="form-section">
+                                    <h3 class="section-title">Общая информация о кредите</h3>
+                                    <v-row>
+                                        <v-col cols="12" md="3">
+                                            <v-select
+                                                v-model="formData.general.creditCurrency"
+                                                :items="currencies"
+                                                label="Валюта кредита"
+                                                variant="outlined"
+                                                density="compact"
+                                                class="required-field"
+                                            ></v-select>
+                                        </v-col>
+                                        <v-col cols="12" md="3">
+                                            <v-text-field
+                                                v-model="formData.general.creditAmount"
+                                                label="Сумма кредита (номинал)"
+                                                type="number"
+                                                variant="outlined"
+                                                density="compact"
+                                                class="required-field"
+                                            ></v-text-field>
+                                        </v-col>
+                                        <v-col cols="12" md="3">
+                                            <v-text-field
+                                                v-model="formData.general.creditBalance"
+                                                label="Остаток (номинал)"
+                                                type="number"
+                                                variant="outlined"
+                                                density="compact"
+                                                class="required-field"
+                                            ></v-text-field>
+                                        </v-col>
+                                        <v-col cols="12" md="3">
+                                            <v-text-field
+                                                v-model="formData.general.interestRate"
+                                                label="Процентная ставка"
+                                                type="number"
+                                                suffix="%"
+                                                variant="outlined"
+                                                density="compact"
+                                            ></v-text-field>
+                                        </v-col>
+                                        <v-col cols="12" md="4">
+                                            <v-text-field
+                                                v-model="formData.general.contractDate"
+                                                label="Дата договора"
+                                                type="date"
+                                                variant="outlined"
+                                                density="compact"
+                                                class="required-field"
+                                            ></v-text-field>
+                                        </v-col>
+                                        <v-col cols="12" md="4">
+                                            <v-text-field
+                                                v-model="formData.general.maturityDate"
+                                                label="Дата погашения"
+                                                type="date"
+                                                variant="outlined"
+                                                density="compact"
+                                                class="required-field"
+                                            ></v-text-field>
+                                        </v-col>
+                                        <v-col cols="12" md="4">
+                                            <v-text-field
+                                                v-model="formData.general.creditTerm"
+                                                label="Срок кредита (мес.)"
+                                                type="number"
+                                                variant="outlined"
+                                                density="compact"
+                                                readonly
+                                                class="readonly-field"
+                                            ></v-text-field>
+                                        </v-col>
+                                        <v-col cols="12">
+                                            <v-textarea
+                                                v-model="formData.general.creditPurpose"
+                                                label="Цель кредита"
+                                                variant="outlined"
+                                                density="compact"
+                                                rows="3"
+                                                class="required-field"
+                                            ></v-textarea>
+                                        </v-col>
+                                    </v-row>
+                                </div>
+                            </v-window-item>
+
+                            <!-- Tab 2: Информация о проекте (НОВЫЙ) -->
+                            <v-window-item :value="2">
+                                <div class="form-section">
+                                    <h3 class="section-title">Информация о проекте</h3>
+                                    <v-row>
+                                        <v-col cols="12">
+                                            <v-textarea
+                                                v-model="formData.project.projectGoal"
+                                                label="Цель проекта"
+                                                variant="outlined"
+                                                density="compact"
+                                                rows="3"
+                                                class="required-field"
+                                            ></v-textarea>
+                                        </v-col>
+                                        <v-col cols="12" md="4">
+                                            <v-text-field
+                                                v-model="formData.project.projectCost"
+                                                label="Стоимость проекта"
+                                                type="number"
+                                                suffix="сум"
+                                                variant="outlined"
+                                                density="compact"
+                                                class="required-field"
+                                            ></v-text-field>
+                                        </v-col>
+                                        <v-col cols="12" md="4">
+                                            <v-text-field
+                                                v-model="formData.project.projectAddress"
+                                                label="Адрес проекта"
+                                                variant="outlined"
+                                                density="compact"
+                                                class="required-field"
+                                            ></v-text-field>
+                                        </v-col>
+                                        <v-col cols="12" md="4">
+                                            <v-text-field
+                                                v-model="formData.project.launchDate"
+                                                label="Дата запуска"
+                                                type="date"
+                                                variant="outlined"
+                                                density="compact"
+                                                class="required-field"
+                                            ></v-text-field>
+                                        </v-col>
+                                        <v-col cols="12" md="6">
+                                            <v-text-field
+                                                v-model="formData.project.projectCapacity"
+                                                label="Мощность проекта"
+                                                variant="outlined"
+                                                density="compact"
+                                                class="required-field"
+                                            ></v-text-field>
+                                        </v-col>
+                                        <v-col cols="12" md="6">
+                                            <v-text-field
+                                                v-model="formData.project.newJobs"
+                                                label="Новые рабочие места"
+                                                type="number"
+                                                variant="outlined"
+                                                density="compact"
+                                                class="required-field"
+                                            ></v-text-field>
+                                        </v-col>
+                                        <v-col cols="12">
+                                            <v-textarea
+                                                v-model="formData.project.suppliers"
+                                                label="Поставщики"
+                                                variant="outlined"
+                                                density="compact"
+                                                rows="2"
+                                            ></v-textarea>
+                                        </v-col>
+                                        <v-col cols="12" md="4">
+                                            <v-checkbox
+                                                v-model="formData.project.hasInfrastructure"
+                                                label="Инфраструктура подведена"
+                                                density="compact"
+                                            ></v-checkbox>
+                                        </v-col>
+                                        <v-col cols="12" md="4">
+                                            <v-text-field
+                                                v-model="formData.project.investments"
+                                                label="Инвестиции"
+                                                type="number"
+                                                suffix="сум"
+                                                variant="outlined"
+                                                density="compact"
+                                            ></v-text-field>
+                                        </v-col>
+                                        <v-col cols="12" md="4">
+                                            <v-text-field
+                                                v-model="formData.project.foreignPartners"
+                                                label="Иностранные партнеры"
+                                                variant="outlined"
+                                                density="compact"
+                                            ></v-text-field>
+                                        </v-col>
+                                    </v-row>
+
+                                    <div v-if="formData.project.foreignPartners">
+                                        <h4 class="subsection-title">Данные иностранных партнеров</h4>
+                                        <v-row>
+                                            <v-col cols="12" md="4">
+                                                <v-text-field
+                                                    v-model="formData.project.partnerName"
+                                                    label="Название партнера"
+                                                    variant="outlined"
+                                                    density="compact"
+                                                ></v-text-field>
+                                            </v-col>
+                                            <v-col cols="12" md="4">
+                                                <v-text-field
+                                                    v-model="formData.project.partnerCountry"
+                                                    label="Страна"
+                                                    variant="outlined"
+                                                    density="compact"
+                                                ></v-text-field>
+                                            </v-col>
+                                            <v-col cols="12" md="4">
+                                                <v-text-field
+                                                    v-model="formData.project.partnerShare"
+                                                    label="Доля участия"
+                                                    type="number"
+                                                    suffix="%"
+                                                    variant="outlined"
+                                                    density="compact"
+                                                ></v-text-field>
+                                            </v-col>
+                                        </v-row>
+                                    </div>
+                                </div>
+                            </v-window-item>
+
+                            <!-- Tab 3: Информация по кредитам -->
+                            <v-window-item :value="3">
+                                <div class="form-section">
+                                    <h3 class="section-title">Информация по имеющимся кредитам</h3>
+                                    <v-btn color="primary" variant="flat" class="mb-4" @click="addCreditRow">
+                                        <v-icon left>mdi-plus</v-icon>
+                                        Добавить кредит
+                                    </v-btn>
+
+                                    <v-data-table
+                                        :headers="creditTableHeaders"
+                                        :items="formData.existingCredits"
+                                        elevation="1"
+                                        density="compact"
+                                    >
+                                        <template v-slot:item="{ item, index }">
+                                            <tr>
+                                                <td><v-text-field v-model="item.bankName" density="compact" variant="plain"></v-text-field></td>
+                                                <td><v-select v-model="item.creditType" :items="creditTypes" density="compact" variant="plain"></v-select></td>
+                                                <td><v-select v-model="item.currency" :items="currencies" density="compact" variant="plain"></v-select></td>
+                                                <td><v-text-field v-model="item.amount" type="number" density="compact" variant="plain"></v-text-field></td>
+                                                <td><v-text-field v-model="item.balance" type="number" density="compact" variant="plain"></v-text-field></td>
+                                                <td><v-text-field v-model="item.rate" type="number" suffix="%" density="compact" variant="plain"></v-text-field></td>
+                                                <td>
+                                                    <v-btn icon size="small" color="error" variant="text" @click="removeCreditRow(index)">
+                                                        <v-icon>mdi-delete</v-icon>
+                                                    </v-btn>
+                                                </td>
+                                            </tr>
+                                        </template>
+                                    </v-data-table>
+                                </div>
+                            </v-window-item>
+
+                            <!-- Tab 4: Связанные предприятия -->
+                            <v-window-item :value="4">
+                                <div class="form-section">
+                                    <h3 class="section-title">Информация по связанным предприятиям</h3>
+                                    <v-btn color="primary" variant="flat" class="mb-4" @click="addRelatedCompany">
+                                        <v-icon left>mdi-plus</v-icon>
+                                        Добавить предприятие
+                                    </v-btn>
+
+                                    <v-data-table
+                                        :headers="relatedCompaniesHeaders"
+                                        :items="formData.relatedCompanies"
+                                        elevation="1"
+                                        density="compact"
+                                    >
+                                        <template v-slot:item="{ item, index }">
+                                            <tr>
+                                                <td><v-text-field v-model="item.companyName" density="compact" variant="plain"></v-text-field></td>
+                                                <td><v-text-field v-model="item.relatedPerson" density="compact" variant="plain"></v-text-field></td>
+                                                <td><v-text-field v-model="item.servicingBank" density="compact" variant="plain"></v-text-field></td>
+                                                <td><v-text-field v-model="item.creditDebt" type="number" density="compact" variant="plain"></v-text-field></td>
+                                                <td><v-text-field v-model="item.inn" density="compact" variant="plain"></v-text-field></td>
+                                                <td>
+                                                    <v-btn icon size="small" color="error" variant="text" @click="removeRelatedCompany(index)">
+                                                        <v-icon>mdi-delete</v-icon>
+                                                    </v-btn>
+                                                </td>
+                                            </tr>
+                                        </template>
+                                    </v-data-table>
+                                </div>
+                            </v-window-item>
+
+                            <!-- Tab 5: Финансовое положение -->
+                            <v-window-item :value="5">
+                                <div class="form-section">
+                                    <h3 class="section-title">Финансовое положение</h3>
+                                    <v-alert type="info" variant="tonal" class="mb-4">
+                                        Данные автоматически загружаются из финансовой отчетности клиента
+                                    </v-alert>
+                                    <v-row>
+                                        <v-col cols="12" md="4">
+                                            <v-text-field
+                                                v-model="formData.financial.totalAssets"
+                                                label="Всего активов"
+                                                type="number"
+                                                suffix="сум"
+                                                variant="outlined"
+                                                density="compact"
+                                                readonly
+                                                class="readonly-field"
+                                            ></v-text-field>
+                                        </v-col>
+                                        <v-col cols="12" md="4">
+                                            <v-text-field
+                                                v-model="formData.financial.currentAssets"
+                                                label="Текущие активы"
+                                                type="number"
+                                                suffix="сум"
+                                                variant="outlined"
+                                                density="compact"
+                                                readonly
+                                                class="readonly-field"
+                                            ></v-text-field>
+                                        </v-col>
+                                        <v-col cols="12" md="4">
+                                            <v-text-field
+                                                v-model="formData.financial.equity"
+                                                label="Собственный капитал"
+                                                type="number"
+                                                suffix="сум"
+                                                variant="outlined"
+                                                density="compact"
+                                                readonly
+                                                class="readonly-field"
+                                            ></v-text-field>
+                                        </v-col>
+                                        <v-col cols="12" md="4">
+                                            <v-text-field
+                                                v-model="formData.financial.revenue"
+                                                label="Выручка"
+                                                type="number"
+                                                suffix="сум"
+                                                variant="outlined"
+                                                density="compact"
+                                                readonly
+                                                class="readonly-field"
+                                            ></v-text-field>
+                                        </v-col>
+                                        <v-col cols="12" md="4">
+                                            <v-text-field
+                                                v-model="formData.financial.netProfit"
+                                                label="Чистая прибыль"
+                                                type="number"
+                                                suffix="сум"
+                                                variant="outlined"
+                                                density="compact"
+                                                readonly
+                                                class="readonly-field"
+                                            ></v-text-field>
+                                        </v-col>
+                                        <v-col cols="12" md="4">
+                                            <v-text-field
+                                                v-model="formData.financial.currentLiabilities"
+                                                label="Текущие обязательства"
+                                                type="number"
+                                                suffix="сум"
+                                                variant="outlined"
+                                                density="compact"
+                                                readonly
+                                                class="readonly-field"
+                                            ></v-text-field>
+                                        </v-col>
+                                    </v-row>
+                                </div>
+                            </v-window-item>
+
+                            <!-- Tab 6: Долговая нагрузка -->
+                            <v-window-item :value="6">
+                                <div class="form-section">
+                                    <h3 class="section-title">Долговая нагрузка</h3>
+                                    <v-row>
+                                        <v-col cols="12" md="4">
+                                            <v-text-field
+                                                :value="monthlyPayment"
+                                                label="Среднемесячный платеж"
+                                                suffix="сум"
+                                                variant="outlined"
+                                                density="compact"
+                                                readonly
+                                                class="readonly-field"
+                                            ></v-text-field>
+                                        </v-col>
+                                        <v-col cols="12" md="4">
+                                            <v-text-field
+                                                :value="monthlyIncome"
+                                                label="Среднемесячный доход"
+                                                suffix="сум"
+                                                variant="outlined"
+                                                density="compact"
+                                                readonly
+                                                class="readonly-field"
+                                            ></v-text-field>
+                                        </v-col>
+                                        <v-col cols="12" md="4">
+                                            <v-text-field
+                                                :value="creditLoad"
+                                                label="Кредитная нагрузка"
+                                                suffix="%"
+                                                variant="outlined"
+                                                density="compact"
+                                                readonly
+                                                class="readonly-field"
+                                                :class="getCreditLoadClass(creditLoad)"
+                                            ></v-text-field>
+                                        </v-col>
+                                    </v-row>
+
+                                    <h4 class="subsection-title">Финансовые коэффициенты</h4>
+                                    <v-row>
+                                        <v-col cols="12" md="3">
+                                            <v-text-field
+                                                :value="coverageRatio"
+                                                label="Коэффициент покрытия"
+                                                variant="outlined"
+                                                density="compact"
+                                                readonly
+                                                class="readonly-field"
+                                            ></v-text-field>
+                                        </v-col>
+                                        <v-col cols="12" md="3">
+                                            <v-text-field
+                                                :value="liquidityRatio"
+                                                label="Коэффициент ликвидности"
+                                                variant="outlined"
+                                                density="compact"
+                                                readonly
+                                                class="readonly-field"
+                                            ></v-text-field>
+                                        </v-col>
+                                        <v-col cols="12" md="3">
+                                            <v-text-field
+                                                :value="autonomyRatio"
+                                                label="Коэффициент автономии"
+                                                variant="outlined"
+                                                density="compact"
+                                                readonly
+                                                class="readonly-field"
+                                            ></v-text-field>
+                                        </v-col>
+                                        <v-col cols="12" md="3">
+                                            <v-text-field
+                                                :value="creditScore"
+                                                label="Балл кредитоспособности"
+                                                variant="outlined"
+                                                density="compact"
+                                                readonly
+                                                class="readonly-field"
+                                                :class="getCreditScoreClass(creditScore)"
+                                            ></v-text-field>
+                                        </v-col>
+                                    </v-row>
+                                </div>
+                            </v-window-item>
+
+                            <!-- Tab 7: Обороты расчетного счета -->
+                            <v-window-item :value="7">
+                                <div class="form-section">
+                                    <h3 class="section-title">Обороты расчетного счета за последние 12 месяцев</h3>
+                                    <v-data-table
+                                        :headers="accountTurnoverHeaders"
+                                        :items="formData.accountTurnover"
+                                        elevation="1"
+                                        density="compact"
+                                    >
+                                    </v-data-table>
+                                </div>
+                            </v-window-item>
+
+                            <!-- Tab 8: Освоение кредитных средств (НОВЫЙ) -->
+                            <v-window-item :value="8">
+                                <div class="form-section">
+                                    <h3 class="section-title">Освоение кредитных средств</h3>
+                                    <v-btn color="primary" variant="flat" class="mb-4" @click="addDisbursementRow">
+                                        <v-icon left>mdi-plus</v-icon>
+                                        Добавить транш
+                                    </v-btn>
+
+                                    <v-data-table
+                                        :headers="disbursementHeaders"
+                                        :items="formData.creditDisbursement"
+                                        elevation="1"
+                                        density="compact"
+                                    >
+                                        <template v-slot:item="{ item, index }">
+                                            <tr>
+                                                <td><v-text-field v-model="item.recipient" density="compact" variant="plain"></v-text-field></td>
+                                                <td><v-text-field v-model="item.disbursementDate" type="date" density="compact" variant="plain"></v-text-field></td>
+                                                <td><v-text-field v-model="item.amount" type="number" density="compact" variant="plain"></v-text-field></td>
+                                                <td><v-text-field v-model="item.purpose" density="compact" variant="plain"></v-text-field></td>
+                                                <td><v-text-field v-model="item.targetActDate" type="date" density="compact" variant="plain"></v-text-field></td>
+                                                <td>
+                                                    <v-btn icon size="small" color="error" variant="text" @click="removeDisbursementRow(index)">
+                                                        <v-icon>mdi-delete</v-icon>
+                                                    </v-btn>
+                                                </td>
+                                            </tr>
+                                        </template>
+                                    </v-data-table>
+
+                                    <v-row class="mt-4">
+                                        <v-col cols="12" md="4">
+                                            <v-text-field
+                                                :value="totalDisbursed"
+                                                label="Всего освоено"
+                                                suffix="сум"
+                                                variant="outlined"
+                                                density="compact"
+                                                readonly
+                                                class="readonly-field"
+                                            ></v-text-field>
+                                        </v-col>
+                                        <v-col cols="12" md="4">
+                                            <v-text-field
+                                                :value="disbursementPercentage"
+                                                label="Процент освоения"
+                                                suffix="%"
+                                                variant="outlined"
+                                                density="compact"
+                                                readonly
+                                                class="readonly-field"
+                                            ></v-text-field>
+                                        </v-col>
+                                    </v-row>
+                                </div>
+                            </v-window-item>
+
+                            <!-- Tab 9: Анализ экспорта (НОВЫЙ) -->
+                            <v-window-item :value="9">
+                                <div class="form-section">
+                                    <h3 class="section-title">Анализ экспортной деятельности</h3>
+                                    <v-row>
+                                        <v-col cols="12">
+                                            <h4 class="subsection-title">Показатели экспорта</h4>
+                                        </v-col>
+                                        <v-col cols="12" md="4">
+                                            <v-text-field
+                                                v-model="formData.export.export2023"
+                                                label="Экспорт 2023"
+                                                type="number"
+                                                suffix="USD"
+                                                variant="outlined"
+                                                density="compact"
+                                            ></v-text-field>
+                                        </v-col>
+                                        <v-col cols="12" md="4">
+                                            <v-text-field
+                                                v-model="formData.export.export2024"
+                                                label="Экспорт 2024"
+                                                type="number"
+                                                suffix="USD"
+                                                variant="outlined"
+                                                density="compact"
+                                            ></v-text-field>
+                                        </v-col>
+                                        <v-col cols="12" md="4">
+                                            <v-text-field
+                                                :value="exportGrowth"
+                                                label="Рост/снижение"
+                                                suffix="%"
+                                                variant="outlined"
+                                                density="compact"
+                                                readonly
+                                                class="readonly-field"
+                                                :class="getGrowthClass(exportGrowth)"
+                                            ></v-text-field>
+                                        </v-col>
+                                        <v-col cols="12" md="4">
+                                            <v-text-field
+                                                v-model="formData.export.volume2023"
+                                                label="Объем продукции 2023"
+                                                type="number"
+                                                variant="outlined"
+                                                density="compact"
+                                            ></v-text-field>
+                                        </v-col>
+                                        <v-col cols="12" md="4">
+                                            <v-text-field
+                                                v-model="formData.export.volume2024"
+                                                label="Объем продукции 2024"
+                                                type="number"
+                                                variant="outlined"
+                                                density="compact"
+                                            ></v-text-field>
+                                        </v-col>
+                                        <v-col cols="12" md="4">
+                                            <v-text-field
+                                                :value="volumeGrowth"
+                                                label="Рост/снижение"
+                                                suffix="%"
+                                                variant="outlined"
+                                                density="compact"
+                                                readonly
+                                                class="readonly-field"
+                                                :class="getGrowthClass(volumeGrowth)"
+                                            ></v-text-field>
+                                        </v-col>
+                                        <v-col cols="12">
+                                            <v-textarea
+                                                v-model="formData.export.exportCountries"
+                                                label="Страны экспорта"
+                                                variant="outlined"
+                                                density="compact"
+                                                rows="2"
+                                                placeholder="Перечислите страны через запятую"
+                                            ></v-textarea>
+                                        </v-col>
+                                        <v-col cols="12">
+                                            <v-textarea
+                                                v-model="formData.export.exportProducts"
+                                                label="Экспортируемая продукция"
+                                                variant="outlined"
+                                                density="compact"
+                                                rows="2"
+                                            ></v-textarea>
+                                        </v-col>
+                                    </v-row>
+
+                                    <div v-if="formData.export.export2024 > 0" class="mt-4">
+                                        <v-chip color="primary" variant="elevated" class="export-badge">
+                                            <v-icon left>mdi-trending-up</v-icon>
+                                            Предприятие-экспортер
+                                        </v-chip>
+                                    </div>
+                                </div>
+                            </v-window-item>
+
+                            <!-- Остальные разделы 10-15 копируем из первого акта без изменений -->
+                            <!-- Tab 10: Адрес деятельности -->
+                            <v-window-item :value="10">
+                                <div class="form-section">
+                                    <h3 class="section-title">Адрес осуществления деятельности заёмщика</h3>
+                                    <v-btn color="primary" variant="flat" class="mb-4" @click="addAddressRow">
+                                        <v-icon left>mdi-plus</v-icon>
+                                        Добавить адрес
+                                    </v-btn>
+
+                                    <v-data-table
+                                        :headers="addressHeaders"
+                                        :items="formData.addresses"
+                                        elevation="1"
+                                        density="compact"
+                                    >
+                                        <template v-slot:item="{ item, index }">
+                                            <tr>
+                                                <td><v-text-field v-model="item.actualAddress" density="compact" variant="plain"></v-text-field></td>
+                                                <td><v-select v-model="item.ownershipRight" :items="ownershipTypes" density="compact" variant="plain"></v-select></td>
+                                                <td><v-text-field v-model="item.totalArea" type="number" density="compact" variant="plain"></v-text-field></td>
+                                                <td><v-text-field v-model="item.activityArea" type="number" density="compact" variant="plain"></v-text-field></td>
+                                                <td><v-checkbox v-model="item.electricity" density="compact"></v-checkbox></td>
+                                                <td><v-checkbox v-model="item.gas" density="compact"></v-checkbox></td>
+                                                <td><v-checkbox v-model="item.water" density="compact"></v-checkbox></td>
+                                                <td v-if="item.ownershipRight === 'Аренда'">
+                                                    <v-text-field v-model="item.leaseExpiry" type="date" density="compact" variant="plain"></v-text-field>
+                                                </td>
+                                                <td v-else></td>
+                                                <td v-if="item.ownershipRight === 'Аренда'">
+                                                    <v-checkbox v-model="item.leaseValid" density="compact"></v-checkbox>
+                                                </td>
+                                                <td v-else></td>
+                                                <td>
+                                                    <v-btn icon size="small" color="error" variant="text" @click="removeAddressRow(index)">
+                                                        <v-icon>mdi-delete</v-icon>
+                                                    </v-btn>
+                                                </td>
+                                            </tr>
+                                        </template>
+                                    </v-data-table>
+                                </div>
+                            </v-window-item>
+
+                            <!-- Tab 11: Картотека-2 -->
+                            <v-window-item :value="11">
+                                <div class="form-section">
+                                    <h3 class="section-title">Задолженность по картотеке-2</h3>
+                                    <p style="color: var(--gray-500); margin-bottom: 20px;">За последние 12 месяцев</p>
+                                    <v-row>
+                                        <v-col cols="12">
+                                            <v-textarea
+                                                v-model="formData.cartoteca2.reason"
+                                                label="Причина возникновения задолженности"
+                                                variant="outlined"
+                                                rows="3"
+                                                density="compact"
+                                            ></v-textarea>
+                                        </v-col>
+                                        <v-col cols="12" md="6">
+                                            <v-text-field
+                                                v-model="formData.cartoteca2.amount"
+                                                label="Сумма задолженности"
+                                                type="number"
+                                                variant="outlined"
+                                                density="compact"
+                                                suffix="сум"
+                                            ></v-text-field>
+                                        </v-col>
+                                    </v-row>
+                                </div>
+                            </v-window-item>
+
+                            <!-- Tab 12: Исполнение решений -->
+                            <v-window-item :value="12">
+                                <div class="form-section">
+                                    <h3 class="section-title">Исполнение решений коллегиального органа</h3>
+                                    <v-row>
+                                        <v-col cols="12" md="6">
+                                            <v-text-field
+                                                v-model="formData.collegialDecisions.collegialBody"
+                                                label="Коллегиальный орган"
+                                                variant="outlined"
+                                                readonly
+                                                class="readonly-field"
+                                                density="compact"
+                                            ></v-text-field>
+                                        </v-col>
+                                        <v-col cols="12" md="6">
+                                            <v-text-field
+                                                v-model="formData.collegialDecisions.decisionNumber"
+                                                label="Дата и номер решения"
+                                                variant="outlined"
+                                                readonly
+                                                class="readonly-field"
+                                                density="compact"
+                                            ></v-text-field>
+                                        </v-col>
+                                        <v-col cols="12">
+                                            <v-textarea
+                                                v-model="formData.collegialDecisions.conditions"
+                                                label="Условия, указанные в решении"
+                                                variant="outlined"
+                                                readonly
+                                                class="readonly-field"
+                                                rows="3"
+                                                density="compact"
+                                            ></v-textarea>
+                                        </v-col>
+                                        <v-col cols="12">
+                                            <v-textarea
+                                                v-model="formData.collegialDecisions.execution"
+                                                label="Исполнение условий"
+                                                variant="outlined"
+                                                rows="3"
+                                                density="compact"
+                                            ></v-textarea>
+                                        </v-col>
+                                    </v-row>
+                                </div>
+                            </v-window-item>
+
+                            <!-- Tab 13: Исполнение бизнес-плана -->
+                            <v-window-item :value="13">
+                                <div class="form-section">
+                                    <h3 class="section-title">Исполнение бизнес-плана</h3>
+
+                                    <v-simple-table class="mb-4">
+                                        <template v-slot:default>
+                                            <thead>
+                                                <tr>
+                                                    <th>Год</th>
+                                                    <th>План продаж (натур.)</th>
+                                                    <th>План продаж (денеж.)</th>
+                                                    <th>Факт (натур.)</th>
+                                                    <th>Факт (денеж.)</th>
+                                                    <th>Выполнение %</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr v-for="year in businessPlanYears" :key="year">
+                                                    <td>{{ year }}</td>
+                                                    <td>
+                                                        <v-text-field
+                                                            v-model="formData.businessPlan[year].planNatural"
+                                                            type="number"
+                                                            density="compact"
+                                                            variant="plain"
+                                                        ></v-text-field>
+                                                    </td>
+                                                    <td>
+                                                        <v-text-field
+                                                            v-model="formData.businessPlan[year].planMoney"
+                                                            type="number"
+                                                            density="compact"
+                                                            variant="plain"
+                                                        ></v-text-field>
+                                                    </td>
+                                                    <td>
+                                                        <v-text-field
+                                                            v-model="formData.businessPlan[year].factNatural"
+                                                            type="number"
+                                                            density="compact"
+                                                            variant="plain"
+                                                        ></v-text-field>
+                                                    </td>
+                                                    <td>
+                                                        <v-text-field
+                                                            v-model="formData.businessPlan[year].factMoney"
+                                                            type="number"
+                                                            density="compact"
+                                                            variant="plain"
+                                                        ></v-text-field>
+                                                    </td>
+                                                    <td>{{ calculateBusinessPlanExecution(year) }}%</td>
+                                                </tr>
+                                            </tbody>
+                                        </template>
+                                    </v-simple-table>
+                                </div>
+                            </v-window-item>
+
+                            <!-- Tab 14: Обеспечение -->
+                            <v-window-item :value="14">
+                                <div class="form-section">
+                                    <h3 class="section-title">Информация по обеспечению кредита</h3>
+
+                                    <h4 class="subsection-title">Имущественное обеспечение</h4>
+                                    <v-btn color="primary" variant="flat" class="mb-4" @click="addCollateralRow">
+                                        <v-icon left>mdi-plus</v-icon>
+                                        Добавить имущество
+                                    </v-btn>
+
+                                    <v-data-table
+                                        :headers="collateralHeaders"
+                                        :items="formData.collateral"
+                                        elevation="1"
+                                        density="compact"
+                                    >
+                                        <template v-slot:item="{ item, index }">
+                                            <tr>
+                                                <td><v-select v-model="item.type" :items="collateralTypes" density="compact" variant="plain"></v-select></td>
+                                                <td><v-text-field v-model="item.address" density="compact" variant="plain"></v-text-field></td>
+                                                <td><v-checkbox v-model="item.subsequentPledge" density="compact"></v-checkbox></td>
+                                                <td><v-text-field v-model="item.pledgeValue" type="number" density="compact" variant="plain"></v-text-field></td>
+                                                <td>{{ calculateCreditCoverage(item) }}%</td>
+                                                <td>
+                                                    <v-btn icon size="small" color="error" variant="text" @click="removeCollateralRow(index)">
+                                                        <v-icon>mdi-delete</v-icon>
+                                                    </v-btn>
+                                                </td>
+                                            </tr>
+                                        </template>
+                                    </v-data-table>
+                                </div>
+                            </v-window-item>
+
+                            <!-- Tab 15: Проблемы и заключение (НОВЫЙ) -->
+                            <v-window-item :value="15">
+                                <div class="form-section">
+                                    <h3 class="section-title">Проблемы и предложения</h3>
+                                    <v-row>
+                                        <v-col cols="12">
+                                            <v-textarea
+                                                v-model="formData.conclusion.problemsCommittee"
+                                                label="Проблемы по решению коллегиального органа"
+                                                variant="outlined"
+                                                rows="3"
+                                                density="compact"
+                                            ></v-textarea>
+                                        </v-col>
+                                        <v-col cols="12">
+                                            <v-textarea
+                                                v-model="formData.conclusion.problemsDebt"
+                                                label="Проблемы по кредитным долгам"
+                                                variant="outlined"
+                                                rows="3"
+                                                density="compact"
+                                            ></v-textarea>
+                                        </v-col>
+                                        <v-col cols="12">
+                                            <v-textarea
+                                                v-model="formData.conclusion.problemsMonitoring"
+                                                label="Проблемы по результатам мониторинга"
+                                                variant="outlined"
+                                                rows="3"
+                                                density="compact"
+                                            ></v-textarea>
+                                        </v-col>
+                                    </v-row>
+
+                                    <h4 class="subsection-title">Заключение</h4>
+                                    <v-row>
+                                        <v-col cols="12">
+                                            <v-textarea
+                                                v-model="formData.conclusion.generalConclusion"
+                                                label="Общий вывод по результатам мониторинга"
+                                                variant="outlined"
+                                                rows="5"
+                                                density="compact"
+                                                class="required-field"
+                                                placeholder="Опишите общее состояние проекта, выполнение обязательств, риски и рекомендации..."
+                                            ></v-textarea>
+                                        </v-col>
+                                        <v-col cols="12" md="6">
+                                            <v-select
+                                                v-model="formData.conclusion.riskLevel"
+                                                :items="['Низкий', 'Средний', 'Высокий', 'Критический']"
+                                                label="Уровень риска"
+                                                variant="outlined"
+                                                density="compact"
+                                                class="required-field"
+                                            ></v-select>
+                                        </v-col>
+                                        <v-col cols="12" md="6">
+                                            <v-select
+                                                v-model="formData.conclusion.recommendation"
+                                                :items="['Продолжить кредитование', 'Пересмотреть условия', 'Усилить мониторинг', 'Инициировать взыскание']"
+                                                label="Рекомендация"
+                                                variant="outlined"
+                                                density="compact"
+                                                class="required-field"
+                                            ></v-select>
+                                        </v-col>
+                                    </v-row>
+                                </div>
+                            </v-window-item>
+
+                        </v-window>
+                    </v-card>
+                </v-container>
+            </v-main>
+
+            <!-- Floating Action Button -->
+            <div class="fab-container">
+                <v-btn class="fab" @click="scrollToTop">
+                    <v-icon>mdi-chevron-up</v-icon>
+                </v-btn>
+            </div>
+
+            <!-- Snackbar для уведомлений -->
+            <v-snackbar v-model="snackbar" :timeout="3000" :color="snackbarColor">
+                {{ snackbarText }}
+                <template v-slot:actions>
+                    <v-btn variant="text" @click="snackbar = false">Закрыть</v-btn>
+                </template>
+            </v-snackbar>
+        </v-app>
+    </div>
+
+    <!-- Vue 3 и Vuetify -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vuetify@3.4.0/dist/vuetify.min.js"></script>
+
+    <script>
+        const { createApp } = Vue;
+        const { createVuetify } = Vuetify;
+
+        const vuetify = createVuetify({
+            theme: {
+                defaultTheme: 'light'
+            }
+        });
+
+        createApp({
+            data() {
+                return {
+                    drawer: false,
+                    activeTab: 0,
+                    snackbar: false,
+                    snackbarText: '',
+                    snackbarColor: 'success',
+
+                    // Menu items
+                    menuItems: [
+                        { title: 'Главная', icon: 'mdi-home' },
+                        { title: 'Задачи мониторинга', icon: 'mdi-clipboard-list' },
+                        {
+                            title: 'Акты мониторинга',
+                            icon: 'mdi-file-document',
+                            submenu: [
+                                {
+                                    title: 'Кредиты на оборотные средства',
+                                    icon: 'mdi-cash-multiple',
+                                    link: 'index.html'
+                                },
+                                {
+                                    title: 'Инвестиционный мониторинг',
+                                    icon: 'mdi-chart-timeline-variant',
+                                    link: 'investment_monitoring.html'
+                                },
+                                {
+                                    title: 'Целевое использование',
+                                    icon: 'mdi-target',
+                                    link: 'target_usage.html'
+                                }
+                            ]
+                        },
+                        { title: 'Отчеты', icon: 'mdi-chart-bar' },
+                        { title: 'Справочники', icon: 'mdi-book' },
+                        { title: 'Настройки', icon: 'mdi-cog' }
+                    ],
+
+                    // 16 разделов инвестиционного акта
+                    sections: [
+                        { title: 'Заголовок' },
+                        { title: 'Общая информация' },
+                        { title: 'Проект' }, // НОВЫЙ
+                        { title: 'Кредиты' },
+                        { title: 'Связанные' },
+                        { title: 'Финансы' },
+                        { title: 'Долговая нагрузка' },
+                        { title: 'Обороты р/с' },
+                        { title: 'Освоение' }, // НОВЫЙ
+                        { title: 'Экспорт' }, // НОВЫЙ
+                        { title: 'Адреса' },
+                        { title: 'Картотека-2' },
+                        { title: 'Решения КО' },
+                        { title: 'Бизнес-план' },
+                        { title: 'Обеспечение' },
+                        { title: 'Заключение' } // НОВЫЙ
+                    ],
+
+                    // Form data structure
+                    formData: {
+                        header: {
+                            companyName: '',
+                            territorialOffice: '',
+                            cbu: '',
+                            monitoringEmployee: '',
+                            monitoringDate: new Date().toISOString().split('T')[0],
+                            clientId: '',
+                            creditNumber: '',
+                            rateUSD: '11350',
+                            rateEUR: '12100',
+                            rateRUB: '145'
+                        },
+                        general: {
+                            creditCurrency: 'USD',
+                            creditAmount: '',
+                            creditBalance: '',
+                            interestRate: '',
+                            contractDate: '',
+                            maturityDate: '',
+                            creditTerm: '',
+                            creditPurpose: ''
+                        },
+                        project: {
+                            projectGoal: '',
+                            projectCost: '',
+                            projectAddress: '',
+                            launchDate: '',
+                            projectCapacity: '',
+                            newJobs: '',
+                            suppliers: '',
+                            hasInfrastructure: false,
+                            investments: '',
+                            foreignPartners: '',
+                            partnerName: '',
+                            partnerCountry: '',
+                            partnerShare: ''
+                        },
+                        existingCredits: [],
+                        relatedCompanies: [],
+                        financial: {
+                            totalAssets: '',
+                            currentAssets: '',
+                            equity: '',
+                            revenue: '',
+                            netProfit: '',
+                            currentLiabilities: ''
+                        },
+                        accountTurnover: [],
+                        creditDisbursement: [],
+                        export: {
+                            export2023: '',
+                            export2024: '',
+                            volume2023: '',
+                            volume2024: '',
+                            exportCountries: '',
+                            exportProducts: ''
+                        },
+                        addresses: [],
+                        cartoteca2: {
+                            reason: '',
+                            amount: ''
+                        },
+                        collegialDecisions: {
+                            collegialBody: '',
+                            decisionNumber: '',
+                            conditions: '',
+                            execution: ''
+                        },
+                        businessPlan: {},
+                        collateral: [],
+                        conclusion: {
+                            problemsCommittee: '',
+                            problemsDebt: '',
+                            problemsMonitoring: '',
+                            generalConclusion: '',
+                            riskLevel: '',
+                            recommendation: ''
+                        }
+                    },
+
+                    // Reference data
+                    currencies: ['UZS', 'USD', 'EUR', 'RUB'],
+                    creditTypes: ['Инвестиционный', 'Оборотные средства', 'Потребительский'],
+                    employees: ['Иванов И.И.', 'Петров П.П.', 'Сидоров С.С.'],
+                    ownershipTypes: ['Собственность', 'Аренда', 'Субаренда', 'Безвозмездное пользование'],
+                    collateralTypes: ['Недвижимость', 'Транспорт', 'Оборудование', 'Товары в обороте'],
+
+                    // Table headers
+                    creditTableHeaders: [
+                        { title: 'Банк', key: 'bankName' },
+                        { title: 'Вид кредита', key: 'creditType' },
+                        { title: 'Валюта', key: 'currency' },
+                        { title: 'Сумма', key: 'amount' },
+                        { title: 'Остаток', key: 'balance' },
+                        { title: 'Ставка %', key: 'rate' },
+                        { title: '', key: 'actions', sortable: false }
+                    ],
+
+                    relatedCompaniesHeaders: [
+                        { title: 'Наименование предприятия', key: 'companyName' },
+                        { title: 'Связанное лицо', key: 'relatedPerson' },
+                        { title: 'Обслуживающий банк', key: 'servicingBank' },
+                        { title: 'Кредитная задолженность', key: 'creditDebt' },
+                        { title: 'ИНН', key: 'inn' },
+                        { title: '', key: 'actions', sortable: false }
+                    ],
+
+                    disbursementHeaders: [
+                        { title: 'Получатель средств', key: 'recipient' },
+                        { title: 'Дата выделения', key: 'disbursementDate' },
+                        { title: 'Сумма', key: 'amount' },
+                        { title: 'Цель', key: 'purpose' },
+                        { title: 'Дата акта целевого', key: 'targetActDate' },
+                        { title: '', key: 'actions', sortable: false }
+                    ],
+
+                    accountTurnoverHeaders: [
+                        { title: 'Период', key: 'period' },
+                        { title: 'Дебет', key: 'debit' },
+                        { title: 'Кредит', key: 'credit' },
+                        { title: 'Поступления от деятельности', key: 'businessIncome' }
+                    ],
+
+                    addressHeaders: [
+                        { title: 'Фактический адрес', key: 'actualAddress' },
+                        { title: 'Право собственности', key: 'ownershipRight' },
+                        { title: 'Общая площадь (м²)', key: 'totalArea' },
+                        { title: 'Площадь деятельности (м²)', key: 'activityArea' },
+                        { title: 'Электричество', key: 'electricity' },
+                        { title: 'Газ', key: 'gas' },
+                        { title: 'Вода', key: 'water' },
+                        { title: 'Срок аренды', key: 'leaseExpiry' },
+                        { title: 'Действительность аренды', key: 'leaseValid' },
+                        { title: '', key: 'actions', sortable: false }
+                    ],
+
+                    collateralHeaders: [
+                        { title: 'Вид имущества', key: 'type' },
+                        { title: 'Адрес', key: 'address' },
+                        { title: 'Последующий залог', key: 'subsequentPledge' },
+                        { title: 'Залоговая стоимость', key: 'pledgeValue' },
+                        { title: 'Покрытие кредита', key: 'coverage' },
+                        { title: '', key: 'actions', sortable: false }
+                    ],
+
+                    businessPlanYears: []
+                };
+            },
+            computed: {
+                progressPercentage() {
+                    // Простая логика расчета прогресса
+                    let filled = 0;
+                    let total = 50; // Примерное количество обязательных полей
+
+                    if (this.formData.header.companyName) filled++;
+                    if (this.formData.general.creditAmount) filled++;
+                    if (this.formData.project.projectGoal) filled++;
+                    // ... добавить больше проверок
+
+                    return Math.round((filled / total) * 100);
+                },
+                monthlyPayment() {
+                    const balance = parseFloat(this.formData.general.creditBalance) || 0;
+                    const rate = parseFloat(this.formData.general.interestRate) || 0;
+                    const months = 60;
+                    if (rate === 0) return 0;
+                    const payment = balance * (rate / 100 / 12) / (1 - Math.pow(1 + rate / 100 / 12, -months));
+                    return this.formatNumber(payment || 0);
+                },
+                monthlyIncome() {
+                    const revenue = parseFloat(this.formData.financial.revenue) || 0;
+                    return this.formatNumber(revenue / 12);
+                },
+                creditLoad() {
+                    const payment = parseFloat(this.monthlyPayment.toString().replace(/\s/g, '')) || 0;
+                    const income = parseFloat(this.monthlyIncome.toString().replace(/\s/g, '')) || 0;
+                    if (income === 0) return 0;
+                    return ((payment / income) * 100).toFixed(2);
+                },
+                coverageRatio() {
+                    const current = parseFloat(this.formData.financial.currentAssets) || 0;
+                    const liabilities = parseFloat(this.formData.financial.currentLiabilities) || 1;
+                    return (current / liabilities).toFixed(2);
+                },
+                liquidityRatio() {
+                    const cash = parseFloat(this.formData.financial.currentAssets) || 0;
+                    const liabilities = parseFloat(this.formData.financial.currentLiabilities) || 1;
+                    return ((cash * 0.3) / liabilities).toFixed(2);
+                },
+                autonomyRatio() {
+                    const equity = parseFloat(this.formData.financial.equity) || 0;
+                    const assets = parseFloat(this.formData.financial.totalAssets) || 1;
+                    return (equity / assets).toFixed(2);
+                },
+                creditScore() {
+                    const coverage = parseFloat(this.coverageRatio);
+                    const liquidity = parseFloat(this.liquidityRatio);
+                    const autonomy = parseFloat(this.autonomyRatio);
+                    return ((coverage * 40 + liquidity * 30 + autonomy * 30) / 100).toFixed(1);
+                },
+                totalDisbursed() {
+                    const total = this.formData.creditDisbursement.reduce((sum, item) => {
+                        return sum + (parseFloat(item.amount) || 0);
+                    }, 0);
+                    return this.formatNumber(total);
+                },
+                disbursementPercentage() {
+                    const total = parseFloat(this.totalDisbursed.toString().replace(/\s/g, '')) || 0;
+                    const creditAmount = parseFloat(this.formData.general.creditAmount) || 1;
+                    return ((total / creditAmount) * 100).toFixed(2);
+                },
+                exportGrowth() {
+                    const export2023 = parseFloat(this.formData.export.export2023) || 0;
+                    const export2024 = parseFloat(this.formData.export.export2024) || 0;
+                    if (export2023 === 0) return 0;
+                    return (((export2024 - export2023) / export2023) * 100).toFixed(2);
+                },
+                volumeGrowth() {
+                    const volume2023 = parseFloat(this.formData.export.volume2023) || 0;
+                    const volume2024 = parseFloat(this.formData.export.volume2024) || 0;
+                    if (volume2023 === 0) return 0;
+                    return (((volume2024 - volume2023) / volume2023) * 100).toFixed(2);
+                }
+            },
+            methods: {
+                autoFill() {
+                    // Заполнение тестовыми данными
+                    this.formData.header.companyName = 'ООО "ИнвестПромСтрой"';
+                    this.formData.header.territorialOffice = 'Ташкентское';
+                    this.formData.header.cbu = 'ЦБУ №001';
+                    this.formData.header.monitoringEmployee = 'Иванов И.И.';
+                    this.formData.header.clientId = '123456';
+                    this.formData.header.creditNumber = 'INV-2024-001';
+
+                    this.formData.general.creditAmount = '5000000';
+                    this.formData.general.creditBalance = '4500000';
+                    this.formData.general.interestRate = '18';
+                    this.formData.general.contractDate = '2024-01-15';
+                    this.formData.general.maturityDate = '2029-01-15';
+                    this.formData.general.creditPurpose = 'Строительство производственного цеха';
+
+                    this.formData.project.projectGoal = 'Строительство цеха по производству строительных материалов';
+                    this.formData.project.projectCost = '7000000000';
+                    this.formData.project.projectAddress = 'г. Ташкент, Яккасарайский район, ул. Промышленная, 25';
+                    this.formData.project.launchDate = '2025-06-01';
+                    this.formData.project.projectCapacity = '50000 тонн/год';
+                    this.formData.project.newJobs = '150';
+                    this.formData.project.suppliers = 'ООО "ЦементПром", АО "МеталлКонструкция"';
+                    this.formData.project.hasInfrastructure = true;
+                    this.formData.project.investments = '2000000000';
+                    this.formData.project.foreignPartners = 'China Construction Corp.';
+
+                    this.formData.financial.totalAssets = '15000000000';
+                    this.formData.financial.currentAssets = '5000000000';
+                    this.formData.financial.equity = '8000000000';
+                    this.formData.financial.revenue = '12000000000';
+                    this.formData.financial.netProfit = '2400000000';
+                    this.formData.financial.currentLiabilities = '3000000000';
+
+                    this.formData.export.export2023 = '1500000';
+                    this.formData.export.export2024 = '2100000';
+                    this.formData.export.volume2023 = '10000';
+                    this.formData.export.volume2024 = '14000';
+                    this.formData.export.exportCountries = 'Казахстан, Кыргызстан, Россия';
+                    this.formData.export.exportProducts = 'Цемент М500, Кирпич силикатный';
+
+                    this.formData.conclusion.generalConclusion = 'Проект реализуется согласно графику. Освоено 70% кредитных средств. Строительство цеха завершено на 65%. Финансовое состояние стабильное.';
+                    this.formData.conclusion.riskLevel = 'Средний';
+                    this.formData.conclusion.recommendation = 'Продолжить кредитование';
+
+                    this.showSnackbar('Форма заполнена тестовыми данными', 'success');
+                },
+                saveForm() {
+                    localStorage.setItem('investmentMonitoringForm', JSON.stringify(this.formData));
+                    this.showSnackbar('Акт сохранен локально', 'success');
+                },
+                resetForm() {
+                    if (confirm('Вы уверены, что хотите сбросить все данные формы?')) {
+                        location.reload();
+                    }
+                },
+                generateDocument() {
+                    this.showSnackbar('Генерация документа... (в разработке)', 'info');
+                },
+                addCreditRow() {
+                    this.formData.existingCredits.push({
+                        bankName: '',
+                        creditType: 'Инвестиционный',
+                        currency: 'UZS',
+                        amount: 0,
+                        balance: 0,
+                        rate: 0
+                    });
+                },
+                removeCreditRow(index) {
+                    this.formData.existingCredits.splice(index, 1);
+                },
+                addRelatedCompany() {
+                    this.formData.relatedCompanies.push({
+                        companyName: '',
+                        relatedPerson: '',
+                        servicingBank: '',
+                        creditDebt: 0,
+                        inn: ''
+                    });
+                },
+                removeRelatedCompany(index) {
+                    this.formData.relatedCompanies.splice(index, 1);
+                },
+                addDisbursementRow() {
+                    this.formData.creditDisbursement.push({
+                        recipient: '',
+                        disbursementDate: '',
+                        amount: 0,
+                        purpose: '',
+                        targetActDate: ''
+                    });
+                },
+                removeDisbursementRow(index) {
+                    this.formData.creditDisbursement.splice(index, 1);
+                },
+                addAddressRow() {
+                    this.formData.addresses.push({
+                        actualAddress: '',
+                        ownershipRight: 'Собственность',
+                        totalArea: 0,
+                        activityArea: 0,
+                        electricity: true,
+                        gas: true,
+                        water: true,
+                        leaseExpiry: '',
+                        leaseValid: true
+                    });
+                },
+                removeAddressRow(index) {
+                    this.formData.addresses.splice(index, 1);
+                },
+                addCollateralRow() {
+                    this.formData.collateral.push({
+                        type: '',
+                        address: '',
+                        subsequentPledge: false,
+                        pledgeValue: 0
+                    });
+                },
+                removeCollateralRow(index) {
+                    this.formData.collateral.splice(index, 1);
+                },
+                calculateBusinessPlanExecution(year) {
+                    const plan = this.formData.businessPlan[year];
+                    if (!plan || !plan.planMoney || plan.planMoney === 0) return 0;
+                    return ((plan.factMoney / plan.planMoney) * 100).toFixed(2);
+                },
+                calculateCreditCoverage(item) {
+                    if (!this.formData.general.creditBalance) return 0;
+                    return ((item.pledgeValue / this.formData.general.creditBalance) * 100).toFixed(2);
+                },
+                formatNumber(value) {
+                    if (!value) return '0';
+                    return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+                },
+                getCreditLoadClass(value) {
+                    const load = parseFloat(value);
+                    if (load < 30) return 'text-success';
+                    if (load < 50) return 'text-warning';
+                    return 'text-error';
+                },
+                getCreditScoreClass(value) {
+                    const score = parseFloat(value);
+                    if (score >= 80) return 'text-success';
+                    if (score >= 60) return 'text-warning';
+                    return 'text-error';
+                },
+                getGrowthClass(value) {
+                    const growth = parseFloat(value);
+                    if (growth > 0) return 'text-success';
+                    if (growth < 0) return 'text-error';
+                    return '';
+                },
+                showSnackbar(text, color) {
+                    this.snackbarText = text;
+                    this.snackbarColor = color;
+                    this.snackbar = true;
+                },
+                scrollToTop() {
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                }
+            },
+            mounted() {
+                // Инициализация
+                this.addCreditRow();
+                this.addRelatedCompany();
+                this.addDisbursementRow();
+                this.addAddressRow();
+                this.addCollateralRow();
+
+                // Инициализация бизнес-плана на 7 лет
+                const currentYear = new Date().getFullYear();
+                for (let i = 0; i < 7; i++) {
+                    const year = currentYear + i;
+                    this.businessPlanYears.push(year);
+                    this.formData.businessPlan[year] = {
+                        planNatural: 0,
+                        planMoney: 0,
+                        factNatural: 0,
+                        factMoney: 0
+                    };
+                }
+
+                // Инициализация оборотов за 12 месяцев
+                const months = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь',
+                               'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
+                months.forEach(month => {
+                    this.formData.accountTurnover.push({
+                        period: month + ' 2024',
+                        debit: Math.floor(Math.random() * 1000000000),
+                        credit: Math.floor(Math.random() * 1000000000),
+                        businessIncome: Math.floor(Math.random() * 800000000)
+                    });
+                });
+            }
+        }).use(vuetify).mount('#app');
+    </script>
+</body>
+</html>

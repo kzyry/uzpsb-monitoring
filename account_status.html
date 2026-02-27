@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Статус счета</title>
+    <link href="https://cdn.jsdelivr.net/npm/vuetify@3.4.0/dist/vuetify.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/@mdi/font@7.3.67/css/materialdesignicons.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="src/styles/base.css" rel="stylesheet">
+</head>
+<body>
+    <div id="app">
+        <div class="main-container">
+            <!-- Top -->
+            <div class="top-section">
+                <div class="page-tabs">
+                    <div v-for="(tab, i) in pageTabs" :key="i"
+                         :class="['page-tab', { active: tab.active, error: tab.error }]"
+                         @click="selectPageTab(i)">
+                        {{ tab.label }}
+                        <svg class="close-icon" viewBox="0 0 10 10" @click.stop="closePageTab(i)">
+                            <line x1="1" y1="1" x2="9" y2="9" stroke="currentColor" stroke-width="1.5"/>
+                            <line x1="9" y1="1" x2="1" y2="9" stroke="currentColor" stroke-width="1.5"/>
+                        </svg>
+                    </div>
+                </div>
+                <div class="title-menu-section">
+                    <div class="title-area">
+                        <div class="back-btn" @click="goBack">
+                            <img src="src/assets/icons/icon-arrow-back.svg" width="17" height="15" alt="">
+                        </div>
+                        <h1>Задача №199. Задача мониторинга. Кредит ID test5</h1>
+                    </div>
+                    <div class="nav-menu">
+                        <div v-for="(item, i) in navItems" :key="i"
+                             :class="['nav-item', { active: activeNav === i }]"
+                             @click="onNav(i)">{{ item }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Account status fields (3-column grid) -->
+            <div class="fields-section">
+                <!-- Row 1: box[2] | box[2] | single -->
+                <div class="field-row">
+                    <div class="field-box">
+                        <field-input label="Текущий платеж" v-model="d.currentPayment"></field-input>
+                        <field-input label="Текущая дата платежа" v-model="d.currentPaymentDate"></field-input>
+                    </div>
+                    <div class="field-box">
+                        <field-input label="Эффективная процентная ставка" v-model="d.effectiveRate"></field-input>
+                        <field-input label="Годовой процент за кредит" v-model="d.annualRate"></field-input>
+                    </div>
+                    <field-input label="Остаток основного долга" v-model="d.principalBalance"></field-input>
+                </div>
+                <!-- Row 2: box[2] | single | single -->
+                <div class="field-row">
+                    <div class="field-box">
+                        <field-input label="Баланс по счету" v-model="d.accountBalance"></field-input>
+                        <field-input label="Дата состояния" v-model="d.statusDate"></field-input>
+                    </div>
+                    <field-input label="Обязательная сумма внесения" v-model="d.mandatoryAmount"></field-input>
+                    <field-input label="Рекомендуемая сумма внесения" v-model="d.recommendedAmount"></field-input>
+                </div>
+                <!-- Row 3: box[2] | single | single -->
+                <div class="field-row">
+                    <div class="field-box">
+                        <field-input label="Общая сумма задолженности" v-model="d.totalDebt"></field-input>
+                        <field-input label="Дата задолженности" v-model="d.debtDate"></field-input>
+                    </div>
+                    <field-input label="Задолженность по НСО" v-model="d.nsoDebt"></field-input>
+                    <field-input label="Судная задолженность" v-model="d.loanDebt"></field-input>
+                </div>
+                <!-- Row 4: box[2] | box[2] | box[2] -->
+                <div class="field-row">
+                    <div class="field-box">
+                        <field-input label="Просроченный основной долг" v-model="d.overduePrincipal"></field-input>
+                        <field-input label="Дата задолженности основного долга" v-model="d.overduePrincipalDate"></field-input>
+                    </div>
+                    <div class="field-box">
+                        <field-input label="Просроченная комиссия" v-model="d.overdueCommission"></field-input>
+                        <field-input label="Дата задолженности комиссии" v-model="d.overdueCommissionDate"></field-input>
+                    </div>
+                    <div class="field-box">
+                        <field-input label="Просроченные проценты" v-model="d.overdueInterest"></field-input>
+                        <field-input label="Дата задолженности процентов" v-model="d.overdueInterestDate"></field-input>
+                    </div>
+                </div>
+                <!-- Row 5: box[2] | single | single -->
+                <div class="field-row">
+                    <div class="field-box">
+                        <field-input label="Просроченный штраф" v-model="d.overduePenalty"></field-input>
+                        <field-input label="Дата задолженности штрафа" v-model="d.overduePenaltyDate"></field-input>
+                    </div>
+                    <field-input label="Сумма штрафов и неустоек" v-model="d.penaltiesTotal"></field-input>
+                    <field-input label="Неустойка за НСО" v-model="d.nsoPenalty"></field-input>
+                </div>
+                <!-- Row 6: single | single | box[2] -->
+                <div class="field-row">
+                    <field-input label="Штраф за несвоевременное внесение денежных средств" v-model="d.lateFee"></field-input>
+                    <field-input label="Госпошлина" v-model="d.stateDuty"></field-input>
+                    <div class="field-box">
+                        <field-input label="Комиссия за обслуживание" v-model="d.serviceFee"></field-input>
+                        <field-input label="Неоплаченные авторизации" v-model="d.unpaidAuth"></field-input>
+                    </div>
+                </div>
+                <!-- Row 7: single | box[2] | box[2] -->
+                <div class="field-row">
+                    <field-input label="Перенесенная ссуда" v-model="d.transferredLoan"></field-input>
+                    <div class="field-box">
+                        <field-input label="Комиссия за перенос" v-model="d.transferFee"></field-input>
+                        <field-input label="Проценты на перенесенную ссуду" v-model="d.transferInterest"></field-input>
+                    </div>
+                    <div class="field-box">
+                        <field-input label="Неустойка по просроченной ссуде" v-model="d.overdueLoanPenalty"></field-input>
+                        <field-input label="Текущие проценты по срочной ссуде" v-model="d.currentInterest"></field-input>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Buttons -->
+            <div class="action-buttons">
+                <app-btn label="Назначить" @click="onAssign"></app-btn>
+                <app-btn label="Назначить проверяющего" @click="onAssignReviewer"></app-btn>
+                <app-btn label="Отменить" @click="onCancel"></app-btn>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/vue@3.3.0/dist/vue.global.prod.js"></script>
+    <script src="src/components/components.js"></script>
+    <script>
+        const { createApp, ref, reactive } = Vue;
+
+        const app = createApp({
+            setup() {
+                const pageTabs = ref([
+                    { label: '№ 12', active: true, error: false },
+                    { label: '№ 199', active: false, error: true }
+                ]);
+                const navItems = UzComponents.navItems;
+                const activeNav = ref(2);
+
+                const d = reactive({
+                    currentPayment: '',
+                    currentPaymentDate: '',
+                    effectiveRate: '%',
+                    annualRate: '',
+                    principalBalance: '',
+                    accountBalance: '',
+                    statusDate: '',
+                    mandatoryAmount: '',
+                    recommendedAmount: '',
+                    totalDebt: '',
+                    debtDate: '',
+                    nsoDebt: '',
+                    loanDebt: '',
+                    overduePrincipal: '',
+                    overduePrincipalDate: '',
+                    overdueCommission: '',
+                    overdueCommissionDate: '',
+                    overdueInterest: '',
+                    overdueInterestDate: '',
+                    overduePenalty: '',
+                    overduePenaltyDate: '',
+                    penaltiesTotal: '',
+                    nsoPenalty: '',
+                    lateFee: '',
+                    stateDuty: '',
+                    serviceFee: '',
+                    unpaidAuth: '',
+                    transferredLoan: '',
+                    transferFee: '',
+                    transferInterest: '',
+                    overdueLoanPenalty: '',
+                    currentInterest: ''
+                });
+
+                function selectPageTab(i) { pageTabs.value.forEach((t, idx) => t.active = idx === i); }
+                function closePageTab(i) { pageTabs.value.splice(i, 1); }
+                function goBack() { window.location.href = 'monitoring_list.html'; }
+                function onNav(i) { UzComponents.navigateTo(i); }
+                function onAssign() { alert('Назначить'); }
+                function onAssignReviewer() { alert('Назначить проверяющего'); }
+                function onCancel() { alert('Отменить'); }
+
+                return {
+                    pageTabs, navItems, activeNav, d,
+                    selectPageTab, closePageTab, goBack, onNav,
+                    onAssign, onAssignReviewer, onCancel
+                };
+            }
+        });
+
+        UzComponents.registerAll(app);
+        app.mount('#app');
+    </script>
+</body>
+</html>

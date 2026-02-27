@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Дополнительная информация</title>
+    <link href="https://cdn.jsdelivr.net/npm/vuetify@3.4.0/dist/vuetify.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/@mdi/font@7.3.67/css/materialdesignicons.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="src/styles/base.css" rel="stylesheet">
+</head>
+<body>
+    <div id="app">
+        <div class="main-container">
+            <!-- Top -->
+            <div class="top-section">
+                <div class="page-tabs">
+                    <div v-for="(tab, i) in pageTabs" :key="i"
+                         :class="['page-tab', { active: tab.active, error: tab.error }]"
+                         @click="selectPageTab(i)">
+                        {{ tab.label }}
+                        <svg class="close-icon" viewBox="0 0 10 10" @click.stop="closePageTab(i)">
+                            <line x1="1" y1="1" x2="9" y2="9" stroke="currentColor" stroke-width="1.5"/>
+                            <line x1="9" y1="1" x2="1" y2="9" stroke="currentColor" stroke-width="1.5"/>
+                        </svg>
+                    </div>
+                </div>
+                <div class="title-menu-section">
+                    <div class="title-area">
+                        <div class="back-btn" @click="goBack">
+                            <img src="src/assets/icons/icon-arrow-back.svg" width="17" height="15" alt="">
+                        </div>
+                        <h1>Задача №199. Задача мониторинга. Кредит ID test5</h1>
+                    </div>
+                    <div class="nav-menu">
+                        <div v-for="(item, i) in navItems" :key="i"
+                             :class="['nav-item', { active: activeNav === i }]"
+                             @click="onNav(i)">{{ item }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Table: Список участников сделки -->
+            <app-table title="Список участников сделки"
+                :columns="participantColumns"
+                :rows="participantRows"
+                empty-text="Нет записей">
+            </app-table>
+
+            <!-- Section: Решение кредитного комитета -->
+            <div class="fields-section">
+                <div class="section-title">Решение кредитного комитета</div>
+                <div class="field-row">
+                    <field-date label="Дата решения" v-model="committee.decisionDate"></field-date>
+                    <field-input label="Номер решения" v-model="committee.decisionNumber"></field-input>
+                    <field-input label="Заключение о выдаче" v-model="committee.issuanceConclusion"></field-input>
+                </div>
+            </div>
+
+            <!-- Section: Информация о генеральном соглашении -->
+            <div class="fields-section">
+                <div class="section-title">Информация о генеральном соглашении</div>
+                <div class="field-row">
+                    <field-date label="Дата подписания" v-model="agreement.signDate"></field-date>
+                    <field-input label="Юридический номер" v-model="agreement.legalNumber"></field-input>
+                    <div class="field-group"></div>
+                </div>
+            </div>
+
+            <!-- Section: Источник финансирования -->
+            <div class="fields-section">
+                <div class="section-title">Источник финансирования</div>
+                <!-- Row 1: full width -->
+                <div class="field-row">
+                    <field-input label="Источники финансирования" v-model="financing.source"></field-input>
+                </div>
+                <!-- Row 2: 3 columns (1 field + box[2] + box[2]) -->
+                <div class="field-row">
+                    <field-input label="Цель кредитной линии" v-model="financing.creditLinePurpose"></field-input>
+                    <div class="field-box">
+                        <field-input label="Источник кредитования, Код" v-model="financing.creditSourceCode"></field-input>
+                        <field-input label="Источник кредитования, Наименование" v-model="financing.creditSourceName"></field-input>
+                    </div>
+                    <div class="field-box">
+                        <field-input label="Зарубежный банк, Код" v-model="financing.foreignBankCode"></field-input>
+                        <field-input label="Зарубежный банк, Наименование" v-model="financing.foreignBankName"></field-input>
+                    </div>
+                </div>
+                <!-- Row 3: 3 columns (1 field + 1 field wide + box[2]) -->
+                <div class="field-row">
+                    <field-input label="Объект ссуды" v-model="financing.loanObject"></field-input>
+                    <field-input label="Сумма финансирования" v-model="financing.financingAmount"></field-input>
+                    <div class="field-box">
+                        <field-input label="Валюта финансирования, Наименование" v-model="financing.currencyName"></field-input>
+                        <field-input label="Валюта финансирования, Код" v-model="financing.currencyCode"></field-input>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Collapse: Дополнительные реквизиты -->
+            <div class="collapse-bar">
+                <img class="collapse-icon" src="src/assets/icons/btn-plusbig.svg" width="24" height="24" alt="">
+                <span>Дополнительные реквизиты</span>
+            </div>
+
+            <!-- Buttons -->
+            <div class="action-buttons">
+                <app-btn label="Назначить" @click="onAssign"></app-btn>
+                <app-btn label="Назначить проверяющего" @click="onAssignReviewer"></app-btn>
+                <app-btn label="Отменить" @click="onCancel"></app-btn>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/vue@3.3.0/dist/vue.global.prod.js"></script>
+    <script src="src/components/components.js"></script>
+    <script>
+        const { createApp, ref, reactive } = Vue;
+
+        const app = createApp({
+            setup() {
+                const pageTabs = ref([
+                    { label: '№ 12', active: true, error: false },
+                    { label: '№ 199', active: false, error: true }
+                ]);
+                const navItems = UzComponents.navItems;
+                const activeNav = ref(7);
+
+                const participantColumns = [
+                    { key: 'name', label: 'ФИО/Наименование клиента' },
+                    { key: 'type', label: 'Тип участника' },
+                    { key: 'inn', label: 'ИНН' },
+                    { key: 'pinfl', label: 'ПИНФЛ' }
+                ];
+                const participantRows = ref([]);
+
+                const committee = reactive({
+                    decisionDate: '01.11.2025',
+                    decisionNumber: '1',
+                    issuanceConclusion: 'test'
+                });
+
+                const agreement = reactive({
+                    signDate: '02.11.2021',
+                    legalNumber: 'test'
+                });
+
+                const financing = reactive({
+                    source: 'test',
+                    creditLinePurpose: 'цель',
+                    creditSourceCode: '',
+                    creditSourceName: '',
+                    foreignBankCode: '',
+                    foreignBankName: '',
+                    loanObject: 'test',
+                    financingAmount: '1.00',
+                    currencyName: 'Узбекский Сум',
+                    currencyCode: 'UZS'
+                });
+
+                function selectPageTab(i) { pageTabs.value.forEach((t, idx) => t.active = idx === i); }
+                function closePageTab(i) { pageTabs.value.splice(i, 1); }
+                function goBack() { window.location.href = 'monitoring_list.html'; }
+                function onNav(i) { UzComponents.navigateTo(i); }
+                function onAssign() { alert('Назначить'); }
+                function onAssignReviewer() { alert('Назначить проверяющего'); }
+                function onCancel() { alert('Отменить'); }
+
+                return {
+                    pageTabs, navItems, activeNav,
+                    participantColumns, participantRows,
+                    committee, agreement, financing,
+                    selectPageTab, closePageTab, goBack, onNav,
+                    onAssign, onAssignReviewer, onCancel
+                };
+            }
+        });
+
+        UzComponents.registerAll(app);
+        app.mount('#app');
+    </script>
+</body>
+</html>
