@@ -32,6 +32,10 @@
                             <img src="src/assets/icons/icon-arrow-back.svg" width="17" height="15" alt="">
                         </div>
                         <h1>Задача №{{ taskData.taskNumber }}. Задача мониторинга. Кредит ID {{ taskData.creditId }}</h1>
+                        <div class="version-toggle">
+                            <div class="version-btn active">Версия 1</div>
+                            <div class="version-btn" @click="switchVersion">Версия 2</div>
+                        </div>
                     </div>
                     <div class="nav-menu">
                         <div v-for="(item, i) in navItems" :key="i"
@@ -356,12 +360,13 @@
                 function closePageTab(i) { pageTabs.value.splice(i, 1); }
                 function goBack() { window.location.href = 'monitoring_list.html'; }
                 function onNav(i) { UzComponents.navigateTo(i); }
+                function switchVersion() { window.location.href = 'task_monitoring_v2.html'; }
                 function onAssign() { alert('Назначить'); }
                 function onAssignReviewer() { alert('Назначить проверяющего'); }
                 function onCancel() { alert('Отменить'); }
 
                 return {
-                    pageTabs, navItems, activeNav, onNav,
+                    pageTabs, navItems, activeNav, onNav, switchVersion,
                     taskData, creditData, monitoringData,
                     actState, actData, createAct, openAct, generateDoc, deleteAct,
                     signals,

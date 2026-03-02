@@ -1,0 +1,1040 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Задача мониторинга (V2)</title>
+    <link href="https://cdn.jsdelivr.net/npm/vuetify@3.4.0/dist/vuetify.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/@mdi/font@7.3.67/css/materialdesignicons.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="src/styles/base.css" rel="stylesheet">
+</head>
+<body>
+    <div id="app">
+        <div class="main-container">
+            <!-- Top -->
+            <div class="top-section">
+                <div class="page-tabs">
+                    <div v-for="(tab, i) in pageTabs" :key="i"
+                         :class="['page-tab', { active: tab.active, error: tab.error }]"
+                         @click="selectPageTab(i)">
+                        {{ tab.label }}
+                        <svg class="close-icon" viewBox="0 0 10 10" @click.stop="closePageTab(i)">
+                            <line x1="1" y1="1" x2="9" y2="9" stroke="currentColor" stroke-width="1.5"/>
+                            <line x1="9" y1="1" x2="1" y2="9" stroke="currentColor" stroke-width="1.5"/>
+                        </svg>
+                    </div>
+                </div>
+                <div class="title-menu-section">
+                    <div class="title-area">
+                        <div class="back-btn" @click="goBack">
+                            <img src="src/assets/icons/icon-arrow-back.svg" width="17" height="15" alt="">
+                        </div>
+                        <h1>Задача №{{ taskData.taskNumber }}. Задача мониторинга. Кредит ID {{ taskData.creditId }}</h1>
+                        <div class="version-toggle">
+                            <div class="version-btn" @click="switchVersion">Версия 1</div>
+                            <div class="version-btn active">Версия 2</div>
+                        </div>
+                    </div>
+                    <div class="nav-menu">
+                        <div v-for="(item, i) in localNavItems" :key="i"
+                             :class="['nav-item', { active: activeNav === i }]"
+                             @click="onNav(i)">{{ item }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ============================================ -->
+            <!-- TAB 0: Задание                               -->
+            <!-- ============================================ -->
+            <template v-if="activeNav === 0">
+
+                <!-- Section 1: Task info -->
+                <div class="fields-section">
+                    <div class="field-row">
+                        <field-input label="Номер задачи" v-model="taskData.taskNumber2"></field-input>
+                        <div class="field-box">
+                            <field-date label="Дата создания" v-model="taskData.createdDate"></field-date>
+                            <field-input label="Статус задачи" v-model="taskData.status"></field-input>
+                        </div>
+                        <field-input label="Приоритет" v-model="taskData.priority"></field-input>
+                    </div>
+                    <div class="field-row">
+                        <field-input label="Тип задачи" v-model="taskData.taskType"></field-input>
+                        <field-input label="Вид мониторинга" v-model="taskData.monitoringType"></field-input>
+                        <field-input label="Исполнитель" v-model="taskData.executor"></field-input>
+                    </div>
+                    <div class="field-row">
+                        <field-date label="Дата назначения" v-model="taskData.assignDate"></field-date>
+                        <field-date label="Срок выполнения" v-model="taskData.deadline"></field-date>
+                        <field-date label="Фактическая дата выполнения" v-model="taskData.completionDate"></field-date>
+                    </div>
+                </div>
+
+                <!-- Section 2: Credit info -->
+                <div class="fields-section">
+                    <div class="section-title">Информация о кредите</div>
+                    <div class="field-row">
+                        <div class="field-box">
+                            <field-input label="ФИО/Наименование заемщика" v-model="creditData.borrowerName"></field-input>
+                            <field-input label="Тип договора" v-model="creditData.contractType"></field-input>
+                        </div>
+                        <field-input label="Номер кредитного договора" v-model="creditData.contractNumber"></field-input>
+                        <div class="field-box">
+                            <field-date label="Дата начала договора" v-model="creditData.startDate"></field-date>
+                            <field-date label="Дата окончания договора" v-model="creditData.endDate"></field-date>
+                        </div>
+                    </div>
+                    <div class="field-row">
+                        <div class="field-box">
+                            <field-input label="Сумма кредита" v-model="creditData.amount"></field-input>
+                            <field-input label="Валюта" v-model="creditData.currency"></field-input>
+                        </div>
+                        <field-select label="Класс обеспечения" v-model="creditData.collateralClass"
+                            :options="['Стандартные', 'Субстандартные', 'Сомнительные']"></field-select>
+                        <field-input label="Цель кредита" v-model="creditData.purpose"></field-input>
+                    </div>
+                </div>
+
+                <!-- Section 3: Monitoring conditions -->
+                <div class="fields-section">
+                    <div style="display: flex; flex-direction: column; gap: 12px; padding-bottom: 16px;">
+                        <div class="section-subtitle">Мониторинг условий</div>
+                        <div class="section-subtitle" style="font-size: 16px; padding-left: 8px;">Условие КО, кредитной программы</div>
+                    </div>
+                    <div class="field-row" style="align-items: flex-start;">
+                        <field-input label="Условие" v-model="monitoringData.condition" textarea></field-input>
+                        <field-input label="Дата мониторинга" v-model="monitoringData.monitoringDate"></field-input>
+                    </div>
+                    <div class="field-row">
+                        <field-select label="Вывод" v-model="monitoringData.conclusion" required
+                            :options="['Соответствует', 'Не соответствует', 'Частично']" style="flex: 0.5;"></field-select>
+                        <div class="field-group" style="flex: 0.5;"></div>
+                    </div>
+                    <div class="field-row">
+                        <field-input label="Комментарий" v-model="monitoringData.comment" textarea></field-input>
+                    </div>
+                </div>
+
+                <!-- Section 4: Signals -->
+                <div class="fields-section">
+                    <div class="section-title">Сигналы</div>
+                    <div class="checkbox-group">
+                        <app-checkbox v-for="(signal, i) in signals" :key="i"
+                            :label="signal.label" v-model="signal.checked"></app-checkbox>
+                    </div>
+                </div>
+
+                <!-- Section 5: Documents panel -->
+                <div class="doc-panel">
+                    <div class="doc-tree">
+                        <div class="doc-tree-title">Перечень документов</div>
+                        <div class="doc-tree-items">
+                            <div v-for="(group, gi) in docTree" :key="gi">
+                                <div class="tree-item">
+                                    <div class="tree-btn"><div class="tree-btn-line"></div></div>
+                                    <span class="tree-label">{{ group.label }}</span>
+                                </div>
+                                <div v-for="(child, ci) in group.children" :key="ci" class="tree-item-child" style="margin-top: 10px;">
+                                    <div class="tree-btn-active"></div>
+                                    <span class="tree-label">{{ child.label }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="doc-table-side">
+                        <app-table title="Документы"
+                            :columns="docColumns" :rows="docRows" empty-text="Нет записей"></app-table>
+                    </div>
+                </div>
+
+                <!-- Section 6: Bottom tables -->
+                <div class="bottom-tables">
+                    <app-table title="История выполнения задачи"
+                        :columns="historyColumns" :rows="historyRows" footer-text="Строк: 2"></app-table>
+                    <app-table title="Комментарии по задаче"
+                        :columns="commentColumns" :rows="commentRows" empty-text="Нет записей"></app-table>
+                </div>
+
+                <!-- Buttons -->
+                <div class="action-buttons">
+                    <app-btn label="Назначить" @click="onAssign"></app-btn>
+                    <app-btn label="Назначить проверяющего" @click="onAssignReviewer"></app-btn>
+                    <app-btn label="Отменить" @click="onCancel"></app-btn>
+                </div>
+
+            </template>
+
+            <!-- ============================================ -->
+            <!-- TAB 1: Акт мониторинга                       -->
+            <!-- ============================================ -->
+            <template v-if="activeNav === 1">
+
+                <!-- State: act not created -->
+                <template v-if="actState === 'none'">
+                    <div class="fields-section">
+                        <div class="section-title">Создание акта мониторинга</div>
+                        <div class="field-row">
+                            <field-select label="Вид мониторинга" v-model="actData.monitoringType" editable
+                                :options="['Мониторинг целевого использования', 'Инспекционный мониторинг', 'Мониторинг обеспечения']"></field-select>
+                            <template v-if="actData.monitoringType === 'Инспекционный мониторинг'">
+                                <field-select label="Шаблон мониторинга" v-model="actData.template" editable
+                                    :options="['Мониторинг кредитов на оборотные средства', 'Инвестиционный мониторинг', 'Текущий мониторинг']"></field-select>
+                            </template>
+                            <template v-else>
+                                <div class="field-group"></div>
+                            </template>
+                            <div class="field-group"></div>
+                        </div>
+                        <div v-if="actData.monitoringType === 'Мониторинг обеспечения'" style="padding: 8px 0; color: #737373; font-size: 13px;">
+                            Акт не создаётся для данного вида мониторинга.
+                        </div>
+                        <template v-if="actData.monitoringType !== 'Мониторинг обеспечения'">
+                            <div class="field-row">
+                                <field-select label="ИД кредита" v-model="actData.creditId" editable
+                                    :options="['test5', 'test6', 'test7']"></field-select>
+                                <field-input label="Сумма кредита" v-model="actData.creditAmount"></field-input>
+                                <field-input label="Валюта" v-model="actData.creditCurrency"></field-input>
+                            </div>
+                            <div class="action-buttons" style="justify-content: flex-start; padding-top: 8px;">
+                                <app-btn label="Сформировать акт" primary @click="createAct"></app-btn>
+                            </div>
+                        </template>
+                    </div>
+                </template>
+
+                <!-- State: act created -->
+                <template v-if="actState === 'created'">
+
+                    <!-- Act status bar -->
+                    <div class="fields-section">
+                        <div class="section-title">{{ actData.actType }}</div>
+                        <div class="act-status-row">
+                            <span class="act-status-label">Статус: {{ actData.status }}</span>
+                            <div class="progress-group">
+                                <span class="progress-label">Заполнено:</span>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" :style="{ width: actData.progress + '%' }"></div>
+                                </div>
+                                <span class="progress-percent">{{ actData.progress }}%</span>
+                            </div>
+                        </div>
+                        <div class="action-buttons" style="justify-content: flex-start; padding-top: 8px;">
+                            <app-btn label="Сформировать документ" @click="generateDoc"></app-btn>
+                            <app-btn label="Удалить акт" @click="deleteAct"></app-btn>
+                        </div>
+                    </div>
+
+                    <!-- ======================================== -->
+                    <!-- TARGET USE: Мониторинг целевого исп.     -->
+                    <!-- ======================================== -->
+                    <template v-if="isTargetUse">
+
+                        <!-- TU Section 1: Сведения о заёмщике -->
+                        <div class="fields-section">
+                            <div class="section-title">1. Сведения о заёмщике</div>
+                            <div class="field-row">
+                                <field-input label="Наименование заёмщика" v-model="tu.borrower.name"></field-input>
+                                <field-input label="ИНН" v-model="tu.borrower.inn"></field-input>
+                                <field-input label="Сегмент" v-model="tu.borrower.segment"></field-input>
+                            </div>
+                            <div class="field-row">
+                                <field-input label="Адрес" v-model="tu.borrower.address"></field-input>
+                                <field-input label="Вид деятельности" v-model="tu.borrower.activity"></field-input>
+                                <field-input label="Код ОКОНХ" v-model="tu.borrower.okonh"></field-input>
+                            </div>
+                        </div>
+
+                        <!-- TU Section 2: Сведения о кредите -->
+                        <div class="fields-section">
+                            <div class="section-title">2. Сведения о кредите</div>
+                            <div class="field-row">
+                                <field-input label="Наименование банка" v-model="tu.credit.bank"></field-input>
+                                <field-input label="Номер кредитного договора" v-model="tu.credit.contractNumber"></field-input>
+                                <field-date label="Дата договора" v-model="tu.credit.contractDate"></field-date>
+                            </div>
+                            <div class="field-row">
+                                <div class="field-box">
+                                    <field-input label="Сумма кредита" v-model="tu.credit.amount"></field-input>
+                                    <field-input label="Валюта" v-model="tu.credit.currency"></field-input>
+                                </div>
+                                <field-date label="Дата выдачи" v-model="tu.credit.issueDate"></field-date>
+                                <field-date label="Дата погашения" v-model="tu.credit.maturityDate"></field-date>
+                            </div>
+                            <div class="field-row">
+                                <field-input label="Цель кредита" v-model="tu.credit.purpose"></field-input>
+                                <field-input label="Процентная ставка" v-model="tu.credit.rate"></field-input>
+                                <field-date label="Дата ввода проекта" v-model="tu.credit.projectDate" editable></field-date>
+                            </div>
+                            <div class="field-row">
+                                <field-input label="Рабочие места (план)" v-model="tu.credit.jobsPlan" editable></field-input>
+                                <field-input label="Рабочие места (факт)" v-model="tu.credit.jobsFact" editable></field-input>
+                                <div class="field-group"></div>
+                            </div>
+                            <div class="field-row" v-if="Number(tu.credit.jobsFact) < Number(tu.credit.jobsPlan)">
+                                <field-input label="Причина несоздания рабочих мест" v-model="tu.credit.jobsReason" editable textarea required></field-input>
+                            </div>
+                        </div>
+
+                        <!-- TU Section 3: Использование средств -->
+                        <div class="fields-section">
+                            <div class="section-title">3. Использование средств</div>
+                            <app-table title="Договоры поставки"
+                                :columns="tu.supplyColumns" :rows="tu.supplyRows" empty-text="Нет записей"></app-table>
+                            <app-table title="Полученные товары"
+                                :columns="tu.goodsColumns" :rows="tu.goodsRows" empty-text="Нет записей"></app-table>
+                            <app-table title="Использование оборудования"
+                                :columns="tu.equipColumns" :rows="tu.equipRows" empty-text="Нет записей"></app-table>
+                        </div>
+
+                        <!-- TU Section 4: Результаты -->
+                        <div class="fields-section">
+                            <div class="section-title">4. Результаты</div>
+                            <div class="field-row">
+                                <field-input label="Фактическое использование кредитных средств" v-model="tu.results.factUsage" editable textarea></field-input>
+                            </div>
+                            <div class="field-row">
+                                <field-input label="Фотоматериалы" v-model="tu.results.photos" editable></field-input>
+                                <div class="field-group"></div>
+                                <div class="field-group"></div>
+                            </div>
+                            <div class="field-row">
+                                <field-input label="Выявленные обстоятельства" v-model="tu.results.findings" editable textarea></field-input>
+                            </div>
+                            <div class="field-row">
+                                <field-input label="Заключение" v-model="tu.results.conclusion" editable textarea></field-input>
+                            </div>
+                        </div>
+
+                    </template>
+
+                    <!-- ======================================== -->
+                    <!-- WORKING CAPITAL / INVESTMENT (common)    -->
+                    <!-- ======================================== -->
+                    <template v-if="isWorkingCapital || isInvestment">
+
+                        <!-- Section 0: Заголовок акта -->
+                        <div class="fields-section">
+                            <div class="section-title">Заголовок акта</div>
+                            <div class="field-row">
+                                <field-input label="Наименование юр. лица" v-model="wc.header.orgName"></field-input>
+                                <field-input label="Территориальное управление" v-model="wc.header.branch" editable></field-input>
+                                <field-input label="ЦБУ" v-model="wc.header.cbu"></field-input>
+                            </div>
+                            <div class="field-row">
+                                <field-input label="Сотрудник мониторинга" v-model="wc.header.employee" editable></field-input>
+                                <field-date label="Дата мониторинга" v-model="wc.header.monitoringDate" editable></field-date>
+                                <field-input label="ID клиента" v-model="wc.header.clientId"></field-input>
+                            </div>
+                            <div class="field-row">
+                                <field-input label="Номер кредита" v-model="wc.header.creditNumber"></field-input>
+                                <field-input label="Курс USD" v-model="wc.header.rateUSD" editable></field-input>
+                                <div class="field-box">
+                                    <field-input label="Курс EUR" v-model="wc.header.rateEUR" editable></field-input>
+                                    <field-input label="Курс RUB" v-model="wc.header.rateRUB" editable></field-input>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Section 1: Общая информация -->
+                        <div class="fields-section">
+                            <div class="section-title">1. Общая информация</div>
+                            <div class="field-row">
+                                <field-input label="Валюта кредита" v-model="wc.general.currency"></field-input>
+                                <field-input label="Сумма (номинал)" v-model="wc.general.amountNominal"></field-input>
+                                <field-input label="Сумма (сум экв.)" v-model="wc.general.amountUZS"></field-input>
+                            </div>
+                            <div class="field-row">
+                                <field-input label="Остаток (номинал)" v-model="wc.general.balanceNominal"></field-input>
+                                <field-input label="Остаток (сум экв.)" v-model="wc.general.balanceUZS"></field-input>
+                                <div class="field-group"></div>
+                            </div>
+                            <div class="field-row">
+                                <field-date label="Дата договора" v-model="wc.general.contractDate"></field-date>
+                                <field-date label="Дата погашения" v-model="wc.general.maturityDate"></field-date>
+                                <field-input label="Срок кредита" v-model="wc.general.creditTerm"></field-input>
+                            </div>
+                            <div class="field-row">
+                                <field-input label="Цель кредита" v-model="wc.general.purpose" textarea></field-input>
+                            </div>
+                            <div class="field-row">
+                                <field-input label="Товары по кредиту" v-model="wc.general.goods" textarea editable></field-input>
+                            </div>
+                            <div class="field-row">
+                                <field-input label="Сегмент клиента" v-model="wc.general.segment"></field-input>
+                                <field-input label="Деятельность" v-model="wc.general.activity"></field-input>
+                                <div class="field-group"></div>
+                            </div>
+                            <div class="field-row">
+                                <field-input label="Судебные разбирательства" v-model="wc.general.courtCases"></field-input>
+                                <field-input label="Задолженность в МИБ" v-model="wc.general.mibDebt"></field-input>
+                                <field-select label="Изменения учредителей" v-model="wc.general.founderChanges" editable
+                                    :options="['Да', 'Нет']"></field-select>
+                            </div>
+                            <div class="field-row">
+                                <field-select label="Вторичный р/счет" v-model="wc.general.secondaryAccount" editable
+                                    :options="['Да', 'Нет']"></field-select>
+                                <div class="field-group"></div>
+                                <div class="field-group"></div>
+                            </div>
+                            <app-table title="Просроченная задолженность по погашенным кредитам"
+                                :columns="wc.overdueClosedCols" :rows="wc.overdueClosedRows" empty-text="Нет записей"></app-table>
+                            <app-table title="Просроченная задолженность по действующим кредитам"
+                                :columns="wc.overdueActiveCols" :rows="wc.overdueActiveRows" empty-text="Нет записей"></app-table>
+                        </div>
+
+                        <!-- Section 2: Информация по имеющимся кредитам -->
+                        <div class="fields-section">
+                            <div class="section-title">2. Информация по имеющимся кредитам</div>
+                            <app-table title="Кредиты"
+                                :columns="wc.creditsCols" :rows="wc.creditsRows" empty-text="Нет записей"></app-table>
+                        </div>
+
+                        <!-- Section 3: Связанные предприятия -->
+                        <div class="fields-section">
+                            <div class="section-title">3. Связанные предприятия</div>
+                            <app-table title="Связанные предприятия"
+                                :columns="wc.relatedCols" :rows="wc.relatedRows" empty-text="Нет записей"></app-table>
+                        </div>
+
+                        <!-- Section 4: Финансовое положение -->
+                        <div class="fields-section">
+                            <div class="section-title">4. Финансовое положение</div>
+                            <app-table title="Баланс (по нац. стандартам)"
+                                :columns="wc.balanceCols" :rows="wc.balanceRows" empty-text="Нет данных"></app-table>
+                            <app-table title="Форма №2 — Отчёт о финансовых результатах"
+                                :columns="wc.incomeCols" :rows="wc.incomeRows" empty-text="Нет данных"></app-table>
+                        </div>
+
+                        <!-- Section 5: Долговая нагрузка -->
+                        <div class="fields-section">
+                            <div class="section-title">5. Долговая нагрузка</div>
+                            <div class="field-row">
+                                <field-input label="Среднемесячный платёж" v-model="wc.debtLoad.monthlyPayment"></field-input>
+                                <field-input label="Среднемесячный доход" v-model="wc.debtLoad.monthlyIncome"></field-input>
+                                <field-input label="Кредитная нагрузка (%)" v-model="wc.debtLoad.loadPercent"></field-input>
+                            </div>
+                        </div>
+
+                        <!-- Section 6: Обороты расчетного счёта -->
+                        <div class="fields-section">
+                            <div class="section-title">6. Обороты расчетного счёта</div>
+                            <app-table title="Обороты за 12 месяцев"
+                                :columns="wc.turnoverCols" :rows="wc.turnoverRows" :footer-text="'Строк: ' + wc.turnoverRows.length"></app-table>
+                        </div>
+
+                        <!-- Section 7: Отчёт по НДС -->
+                        <div class="fields-section">
+                            <div class="section-title">7. Отчёт по НДС</div>
+                            <app-table title="Выручка от реализации (НДС)"
+                                :columns="wc.vatCols" :rows="wc.vatRows" :footer-text="'Строк: ' + wc.vatRows.length"></app-table>
+                        </div>
+
+                        <!-- Section 8: Адрес деятельности -->
+                        <div class="fields-section">
+                            <div class="section-title">8. Адрес деятельности</div>
+                            <app-table title="Адреса деятельности"
+                                :columns="wc.addressCols" :rows="wc.addressRows" empty-text="Нет записей"></app-table>
+                        </div>
+
+                        <!-- Section 9: Картотека-2 -->
+                        <div class="fields-section">
+                            <div class="section-title">9. Картотека-2</div>
+                            <div class="field-row">
+                                <field-input label="Сумма картотеки" v-model="wc.kartoteka.amount"></field-input>
+                                <div class="field-group"></div>
+                                <div class="field-group"></div>
+                            </div>
+                            <template v-if="Number(wc.kartoteka.amount) > 0">
+                                <div class="field-row">
+                                    <field-input label="Причина задолженности" v-model="wc.kartoteka.reason" editable textarea required></field-input>
+                                </div>
+                                <div class="field-row">
+                                    <field-input label="Сумма задолженности" v-model="wc.kartoteka.debtAmount" editable required></field-input>
+                                    <div class="field-group"></div>
+                                    <div class="field-group"></div>
+                                </div>
+                            </template>
+                        </div>
+
+                        <!-- Section 10: Исполнение решений -->
+                        <div class="fields-section">
+                            <div class="section-title">10. Исполнение решений</div>
+                            <div class="field-row">
+                                <field-input label="Коллегиальный орган" v-model="wc.decisions.body"></field-input>
+                                <field-input label="Дата и номер решения" v-model="wc.decisions.decisionRef"></field-input>
+                                <div class="field-group"></div>
+                            </div>
+                            <div class="field-row">
+                                <field-input label="Условия решения" v-model="wc.decisions.conditions" textarea></field-input>
+                            </div>
+                            <div class="field-row">
+                                <field-input label="Исполнение условий" v-model="wc.decisions.execution" editable textarea></field-input>
+                            </div>
+                        </div>
+
+                        <!-- Section 11: Исполнение бизнес-плана -->
+                        <div class="fields-section">
+                            <div class="section-title">11. Исполнение бизнес-плана</div>
+                            <app-table title="Исполнение бизнес-плана"
+                                :columns="wc.bizPlanCols" :rows="wc.bizPlanRows" :footer-text="'Строк: ' + wc.bizPlanRows.length"></app-table>
+                        </div>
+
+                        <!-- Section 12: Ввод проекта -->
+                        <div class="fields-section">
+                            <div class="section-title">12. Ввод проекта</div>
+                            <div class="field-row">
+                                <field-input label="Срок ввода (план)" v-model="wc.projectLaunch.planDate"></field-input>
+                                <field-input label="Срок ввода (факт)" v-model="wc.projectLaunch.factDate" editable></field-input>
+                                <div class="field-group"></div>
+                            </div>
+                            <div class="field-row" v-if="!wc.projectLaunch.factDate">
+                                <field-input label="Причина невведения" v-model="wc.projectLaunch.reason" editable textarea></field-input>
+                            </div>
+                        </div>
+
+                        <!-- Section 13: Обеспечение -->
+                        <div class="fields-section">
+                            <div class="section-title">13. Обеспечение</div>
+                            <app-table title="Имущественное обеспечение"
+                                :columns="wc.collateralPropCols" :rows="wc.collateralPropRows" empty-text="Нет записей"></app-table>
+                            <app-table title="Неимущественное обеспечение"
+                                :columns="wc.collateralNonPropCols" :rows="wc.collateralNonPropRows" empty-text="Нет записей"></app-table>
+                        </div>
+
+                    </template>
+
+                    <!-- ======================================== -->
+                    <!-- INVESTMENT ONLY: extra sections 14-20    -->
+                    <!-- ======================================== -->
+                    <template v-if="isInvestment">
+
+                        <!-- Section 14: Информация о проекте -->
+                        <div class="fields-section">
+                            <div class="section-title">14. Информация о проекте</div>
+                            <div class="field-row">
+                                <field-input label="Цель проекта" v-model="inv.project.goal" textarea></field-input>
+                            </div>
+                            <div class="field-row">
+                                <field-input label="Стоимость проекта" v-model="inv.project.cost"></field-input>
+                                <field-input label="Адрес проекта" v-model="inv.project.address"></field-input>
+                                <field-date label="Дата запуска" v-model="inv.project.launchDate"></field-date>
+                            </div>
+                            <div class="field-row">
+                                <field-input label="Мощность проекта" v-model="inv.project.capacity"></field-input>
+                                <field-input label="Новые рабочие места" v-model="inv.project.jobs"></field-input>
+                                <field-input label="Поставщики" v-model="inv.project.suppliers"></field-input>
+                            </div>
+                            <div class="field-row">
+                                <field-select label="Инфраструктура" v-model="inv.project.infrastructure"
+                                    :options="['Да', 'Нет']"></field-select>
+                                <field-input label="Инвестиции" v-model="inv.project.investments"></field-input>
+                                <field-input label="Иностранные партнеры" v-model="inv.project.foreignPartners"></field-input>
+                            </div>
+                        </div>
+
+                        <!-- Section 15: Освоение кредитных средств -->
+                        <div class="fields-section">
+                            <div class="section-title">15. Освоение кредитных средств</div>
+                            <app-table title="Освоение кредитных средств"
+                                :columns="inv.disbursementCols" :rows="inv.disbursementRows" empty-text="Нет записей"></app-table>
+                        </div>
+
+                        <!-- Section 16: Анализ экспорта -->
+                        <div class="fields-section">
+                            <div class="section-title">16. Анализ экспорта</div>
+                            <app-table title="Анализ экспорта"
+                                :columns="inv.exportCols" :rows="inv.exportRows" empty-text="Нет данных"></app-table>
+                        </div>
+
+                        <!-- Section 17: Изменения в условиях кредита -->
+                        <div class="fields-section">
+                            <div class="section-title">17. Изменения в условиях кредита</div>
+                            <app-table title="Изменения в условиях кредита"
+                                :columns="inv.changesCols" :rows="inv.changesRows" :footer-text="'Строк: ' + inv.changesRows.length"></app-table>
+                        </div>
+
+                        <!-- Section 18: Данные поручителя -->
+                        <div class="fields-section">
+                            <div class="section-title">18. Данные поручителя</div>
+                            <div class="field-row">
+                                <field-input label="Наименование поручителя" v-model="inv.guarantor.name"></field-input>
+                                <field-input label="ИНН" v-model="inv.guarantor.inn"></field-input>
+                                <field-input label="Вид деятельности" v-model="inv.guarantor.activity"></field-input>
+                            </div>
+                            <div class="field-row">
+                                <field-input label="Адрес" v-model="inv.guarantor.address"></field-input>
+                                <field-input label="Обслуживающий банк" v-model="inv.guarantor.bank"></field-input>
+                                <field-input label="Сумма поручительства" v-model="inv.guarantor.amount"></field-input>
+                            </div>
+                            <app-table title="Финансовый анализ поручителя"
+                                :columns="inv.guarantorFinCols" :rows="inv.guarantorFinRows" empty-text="Нет данных"></app-table>
+                        </div>
+
+                        <!-- Section 19: Проблемы и предложения -->
+                        <div class="fields-section">
+                            <div class="section-title">19. Проблемы и предложения</div>
+                            <div class="field-row">
+                                <field-input label="По решению КО" v-model="inv.problems.ko" editable textarea></field-input>
+                            </div>
+                            <div class="field-row">
+                                <field-input label="По кредитным долгам" v-model="inv.problems.debts" editable textarea></field-input>
+                            </div>
+                            <div class="field-row">
+                                <field-input label="По результатам мониторинга" v-model="inv.problems.monitoring" editable textarea></field-input>
+                            </div>
+                        </div>
+
+                        <!-- Section 20: Заключение -->
+                        <div class="fields-section">
+                            <div class="section-title">20. Заключение</div>
+                            <div class="field-row">
+                                <field-input label="Общий вывод" v-model="inv.conclusion" editable textarea></field-input>
+                            </div>
+                        </div>
+
+                    </template>
+
+                    <!-- Act bottom buttons -->
+                    <div class="action-buttons">
+                        <app-btn label="Сохранить" primary @click="onActSave"></app-btn>
+                        <app-btn label="Сформировать документ" @click="generateDoc"></app-btn>
+                    </div>
+
+                </template>
+
+            </template>
+
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/vue@3.3.0/dist/vue.global.prod.js"></script>
+    <script src="src/components/components.js"></script>
+    <script>
+        const { createApp, ref, reactive, computed } = Vue;
+
+        const app = createApp({
+            setup() {
+                // ═══════════════════════════════════════
+                // Navigation
+                // ═══════════════════════════════════════
+                const localNavItems = [
+                    'Задание', 'Акт мониторинга',
+                    'Основные данные', 'Статус счета', 'Обеспечения',
+                    'Счета', 'Платежи', 'Ставки', 'Дополнительная информация', 'Документы'
+                ];
+                const activeNav = ref(0);
+                const navRoutes = {
+                    2: 'basic_data.html',
+                    3: 'account_status.html',
+                    4: 'collateral.html',
+                    5: 'accounts.html',
+                    6: 'payments.html',
+                    7: 'rates.html',
+                    8: 'additional_info.html',
+                    9: 'documents.html'
+                };
+                function onNav(i) {
+                    if (i <= 1) {
+                        activeNav.value = i;
+                    } else if (navRoutes[i]) {
+                        window.location.href = navRoutes[i];
+                    }
+                }
+
+                // ═══════════════════════════════════════
+                // Page tabs
+                // ═══════════════════════════════════════
+                const pageTabs = ref([
+                    { label: '№ 12', active: true, error: false },
+                    { label: '№ 199', active: false, error: true }
+                ]);
+                function selectPageTab(i) { pageTabs.value.forEach((t, idx) => t.active = idx === i); }
+                function closePageTab(i) { pageTabs.value.splice(i, 1); }
+                function goBack() { window.location.href = 'monitoring_list.html'; }
+                function switchVersion() { window.location.href = 'task_monitoring.html'; }
+
+                // ═══════════════════════════════════════
+                // TAB 0: Task data
+                // ═══════════════════════════════════════
+                const taskData = reactive({
+                    taskNumber: 199,
+                    creditId: 'test5',
+                    taskNumber2: '199',
+                    createdDate: '12.11.2025',
+                    status: 'Взята в работу',
+                    priority: 'Обычный',
+                    taskType: 'Задача мониторинга',
+                    monitoringType: 'Мониторинг условий',
+                    executor: 'Lev Aleksandrovich Medvedev',
+                    assignDate: '12.11.2025',
+                    deadline: '24.12.2025',
+                    completionDate: ''
+                });
+
+                const creditData = reactive({
+                    borrowerName: 'test1',
+                    contractType: '',
+                    contractNumber: '91000',
+                    startDate: '02.11.2021',
+                    endDate: '02.11.2022',
+                    amount: '800 000.00',
+                    currency: 'UZS',
+                    collateralClass: '',
+                    purpose: 'test'
+                });
+
+                const monitoringData = reactive({
+                    condition: 'Содержать все свои счета в Банке до полного исполнения своих обязательств по настоящему Кредитному договору',
+                    monitoringDate: '17.11.2025',
+                    conclusion: '',
+                    comment: ''
+                });
+
+                const signals = ref([
+                    { label: 'Другие проблемы у кредита', checked: false },
+                    { label: 'Невыполнение Условие коллегиального органа', checked: false }
+                ]);
+
+                const docTree = ref([{
+                    label: 'Документы по мониторингу',
+                    children: [{ label: 'Мониторинг выполнения условий кредитной программы', active: true }]
+                }]);
+                const docColumns = [
+                    { key: 'docType', label: 'Тип документа' },
+                    { key: 'createdDate', label: 'Дата создания' },
+                    { key: 'docName', label: 'Наименование документа' },
+                    { key: 'uploadedBy', label: 'Кем загружен' }
+                ];
+                const docRows = ref([]);
+
+                const historyColumns = [
+                    { key: 'date', label: 'Дата изменения' },
+                    { key: 'status', label: 'Статус' },
+                    { key: 'executor', label: 'Исполнитель' },
+                    { key: 'changedBy', label: 'Изменивший' }
+                ];
+                const historyRows = ref([
+                    { date: '12.11.2025 17:50:01', status: 'Взята в работу', executor: 'Lev Aleksandrovich Medvedev', changedBy: 'Lev Aleksandrovich Medvedev' },
+                    { date: '12.11.2025 17:47:33', status: 'Новая', executor: 'Lev Aleksandrovich Medvedev', changedBy: 'system user' }
+                ]);
+                const commentColumns = [
+                    { key: 'date', label: 'Дата добавления' },
+                    { key: 'author', label: 'Автор' },
+                    { key: 'text', label: 'Текст' }
+                ];
+                const commentRows = ref([]);
+
+                function onAssign() { alert('Назначить'); }
+                function onAssignReviewer() { alert('Назначить проверяющего'); }
+                function onCancel() { alert('Отменить'); }
+
+                // ═══════════════════════════════════════
+                // TAB 1: Act monitoring
+                // ═══════════════════════════════════════
+                const saved = JSON.parse(localStorage.getItem('actMonitoringV2') || 'null');
+                const actState = ref(saved ? saved.state : 'none');
+                const actData = reactive(saved ? saved.data : {
+                    monitoringType: 'Мониторинг целевого использования',
+                    template: '',
+                    creditId: '',
+                    creditAmount: '800 000.00',
+                    creditCurrency: 'UZS',
+                    actType: '',
+                    status: 'В работе',
+                    progress: 45
+                });
+
+                function saveActState() {
+                    localStorage.setItem('actMonitoringV2', JSON.stringify({
+                        state: actState.value,
+                        data: { ...actData }
+                    }));
+                }
+
+                const isTargetUse = computed(() => actData.actType === 'Мониторинг целевого использования');
+                const isWorkingCapital = computed(() => actData.actType === 'Мониторинг кредитов на оборотные средства');
+                const isInvestment = computed(() => actData.actType === 'Инвестиционный мониторинг');
+
+                function createAct() {
+                    if (actData.monitoringType === 'Инспекционный мониторинг') {
+                        actData.actType = actData.template || 'Мониторинг кредитов на оборотные средства';
+                    } else {
+                        actData.actType = actData.monitoringType || 'Мониторинг целевого использования';
+                    }
+                    actData.creditId = actData.creditId || 'test5';
+                    actState.value = 'created';
+                    saveActState();
+                }
+                function generateDoc() { alert('Формирование документа...'); }
+                function deleteAct() {
+                    actState.value = 'none';
+                    actData.monitoringType = 'Мониторинг целевого использования';
+                    actData.template = '';
+                    actData.creditId = '';
+                    actData.actType = '';
+                    localStorage.removeItem('actMonitoringV2');
+                }
+                function onActSave() { alert('Акт сохранён'); }
+
+                // ═══════════════════════════════════════
+                // TARGET USE data
+                // ═══════════════════════════════════════
+                const tu = reactive({
+                    borrower: {
+                        name: 'test1', inn: '123456789', segment: 'Малый бизнес',
+                        address: 'г. Ташкент, ул. Примерная, 1', activity: 'Торговля', okonh: '51000'
+                    },
+                    credit: {
+                        bank: 'УзПСБ', contractNumber: '91000', contractDate: '02.11.2021',
+                        amount: '800 000.00', currency: 'UZS', issueDate: '02.11.2021',
+                        maturityDate: '02.11.2022', purpose: 'Пополнение оборотных средств',
+                        rate: '22%', projectDate: '', jobsPlan: '10', jobsFact: '7', jobsReason: ''
+                    },
+                    supplyColumns: [
+                        { key: 'supplier', label: 'Поставщик' },
+                        { key: 'contractNum', label: '№ договора' },
+                        { key: 'contractDate', label: 'Дата договора' },
+                        { key: 'amount', label: 'Сумма договора' },
+                        { key: 'purpose', label: 'Цель' },
+                        { key: 'deliveryDate', label: 'Срок поставки' }
+                    ],
+                    supplyRows: [],
+                    goodsColumns: [
+                        { key: 'supplier', label: 'Поставщик' },
+                        { key: 'invoiceNum', label: '№ счета-фактуры' },
+                        { key: 'invoiceDate', label: 'Дата счета-фактуры' },
+                        { key: 'product', label: 'Продукция' },
+                        { key: 'qty', label: 'Количество' },
+                        { key: 'price', label: 'Цена' },
+                        { key: 'total', label: 'Общая сумма' }
+                    ],
+                    goodsRows: [],
+                    equipColumns: [
+                        { key: 'acquired', label: 'Приобретенная продукция' },
+                        { key: 'supplied', label: 'Поставленная продукция' },
+                        { key: 'qty', label: 'Количество' },
+                        { key: 'amount', label: 'Сумма' },
+                        { key: 'inUse', label: 'Используется' },
+                        { key: 'absent', label: 'Отсутствует' },
+                        { key: 'notUsed', label: 'Не используется' }
+                    ],
+                    equipRows: [],
+                    results: { factUsage: '', photos: '', findings: '', conclusion: '', unusedReason: '' }
+                });
+
+                // ═══════════════════════════════════════
+                // WORKING CAPITAL / COMMON data (sections 0-13)
+                // ═══════════════════════════════════════
+                const months = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
+                const overdueCols = [
+                    { key: 'carry', label: 'Переходящая' },
+                    { key: 'd30', label: 'До 30 дн' },
+                    { key: 'd60', label: '30-60 дн' },
+                    { key: 'd90', label: '60-90 дн' },
+                    { key: 'over90', label: '> 90 дн' },
+                    { key: 'court', label: 'Судебное' },
+                    { key: 'offBalance', label: 'Внебаланс' }
+                ];
+
+                const wc = reactive({
+                    header: {
+                        orgName: 'ООО "Прогресс Текстиль"', branch: '', cbu: 'ЦБУ Мирзо-Улугбек',
+                        employee: '', monitoringDate: '', clientId: 'CL-00451', creditNumber: '91000',
+                        rateUSD: '12 850.00', rateEUR: '13 920.00', rateRUB: '132.50'
+                    },
+                    general: {
+                        currency: 'UZS', amountNominal: '800 000 000.00', amountUZS: '800 000 000.00',
+                        balanceNominal: '520 000 000.00', balanceUZS: '520 000 000.00',
+                        contractDate: '02.11.2021', maturityDate: '02.11.2024', creditTerm: '36 мес.',
+                        purpose: 'Пополнение оборотных средств для закупки сырья и материалов',
+                        goods: '', segment: 'Малый бизнес', activity: 'Текстильное производство',
+                        courtCases: 'Нет', mibDebt: 'Нет', founderChanges: '', secondaryAccount: ''
+                    },
+                    overdueClosedCols: overdueCols, overdueClosedRows: [],
+                    overdueActiveCols: overdueCols, overdueActiveRows: [],
+                    creditsCols: [
+                        { key: 'bank', label: 'Банк' }, { key: 'type', label: 'Вид кредита' },
+                        { key: 'currency', label: 'Валюта' }, { key: 'issueDate', label: 'Дата выдачи' },
+                        { key: 'matDate', label: 'Дата погашения' }, { key: 'amountNom', label: 'Сумма (номинал)' },
+                        { key: 'balanceNom', label: 'Остаток (номинал)' }, { key: 'overdueOD', label: 'Просрочка ОД' },
+                        { key: 'overduePct', label: 'Просрочка %' }, { key: 'offBalance', label: 'Внебаланс' },
+                        { key: 'rate', label: 'Ставка %' }, { key: 'unused', label: 'Неисп. часть' },
+                        { key: 'totalDebt', label: 'Всего задолж.' }, { key: 'avgPayment', label: 'Ср.мес. платёж' }
+                    ],
+                    creditsRows: [
+                        { bank: 'УзПСБ', type: 'Оборотный', currency: 'UZS', issueDate: '02.11.2021', matDate: '02.11.2024', amountNom: '800 000 000', balanceNom: '520 000 000', overdueOD: '0', overduePct: '0', offBalance: '0', rate: '22', unused: '0', totalDebt: '520 000 000', avgPayment: '32 500 000' }
+                    ],
+                    relatedCols: [
+                        { key: 'name', label: 'Наименование' }, { key: 'relation', label: 'Связанное лицо' },
+                        { key: 'bank', label: 'Обсл. банк' }, { key: 'debt', label: 'Кредитная задолж.' },
+                        { key: 'overdueOD', label: 'Просрочка ОД' }, { key: 'overduePct', label: 'Просрочка %' },
+                        { key: 'inn', label: 'ИНН' }
+                    ],
+                    relatedRows: [],
+                    balanceCols: [
+                        { key: 'item', label: 'Показатель' },
+                        { key: 'period1', label: '01.01.2024' },
+                        { key: 'period2', label: '01.01.2025' }
+                    ],
+                    balanceRows: [
+                        { item: 'Основные средства', period1: '120 000 000', period2: '115 000 000' },
+                        { item: 'Оборотные активы', period1: '340 000 000', period2: '380 000 000' },
+                        { item: 'Запасы', period1: '85 000 000', period2: '92 000 000' },
+                        { item: 'Дебиторская задолженность', period1: '140 000 000', period2: '165 000 000' },
+                        { item: 'Денежные средства', period1: '45 000 000', period2: '38 000 000' },
+                        { item: 'Итого активы', period1: '460 000 000', period2: '495 000 000' },
+                        { item: 'Собственный капитал', period1: '180 000 000', period2: '195 000 000' },
+                        { item: 'Долгосрочные обязательства', period1: '150 000 000', period2: '130 000 000' },
+                        { item: 'Краткосрочные обязательства', period1: '130 000 000', period2: '170 000 000' },
+                        { item: 'Итого пассивы', period1: '460 000 000', period2: '495 000 000' }
+                    ],
+                    incomeCols: [
+                        { key: 'item', label: 'Показатель' },
+                        { key: 'period1', label: '2023' },
+                        { key: 'period2', label: '2024' }
+                    ],
+                    incomeRows: [
+                        { item: 'Выручка от реализации', period1: '1 200 000 000', period2: '1 350 000 000' },
+                        { item: 'Себестоимость', period1: '980 000 000', period2: '1 080 000 000' },
+                        { item: 'Валовая прибыль', period1: '220 000 000', period2: '270 000 000' },
+                        { item: 'Операционные расходы', period1: '85 000 000', period2: '95 000 000' },
+                        { item: 'Прибыль от основной деятельности', period1: '135 000 000', period2: '175 000 000' },
+                        { item: 'Чистая прибыль', period1: '98 000 000', period2: '128 000 000' }
+                    ],
+                    debtLoad: { monthlyPayment: '32 500 000', monthlyIncome: '112 500 000', loadPercent: '28.9%' },
+                    turnoverCols: [
+                        { key: 'period', label: 'Период' }, { key: 'debit', label: 'Дебет' },
+                        { key: 'credit', label: 'Кредит' }, { key: 'income', label: 'Поступления от деят.' }
+                    ],
+                    turnoverRows: months.map(m => ({ period: m + ' 2024', debit: '95 000 000', credit: '92 000 000', income: '78 000 000' })),
+                    vatCols: [
+                        { key: 'period', label: 'Период' },
+                        { key: 'revenue', label: 'Выручка от реализации' }
+                    ],
+                    vatRows: months.map(m => ({ period: m + ' 2024', revenue: '112 500 000' })),
+                    addressCols: [
+                        { key: 'address', label: 'Фактический адрес' }, { key: 'ownership', label: 'Право собственности' },
+                        { key: 'totalArea', label: 'Общая площадь' }, { key: 'bizArea', label: 'Площадь деят.' },
+                        { key: 'electricity', label: 'Электричество' }, { key: 'gas', label: 'Газ' },
+                        { key: 'water', label: 'Вода' }, { key: 'rentTerm', label: 'Срок аренды' },
+                        { key: 'rentValid', label: 'Действительность' }
+                    ],
+                    addressRows: [
+                        { address: 'г. Ташкент, Мирзо-Улугбекский р-н, ул. Буюк Ипак Йули, 45', ownership: 'Собственность', totalArea: '1 200 м²', bizArea: '800 м²', electricity: 'Да', gas: 'Да', water: 'Да', rentTerm: '—', rentValid: '—' }
+                    ],
+                    kartoteka: { amount: '0', reason: '', debtAmount: '' },
+                    decisions: {
+                        body: 'Кредитный комитет', decisionRef: '№ 45 от 15.10.2021',
+                        conditions: 'Обеспечить ежемесячный оборот по расчетному счету не менее 100 000 000 сум', execution: ''
+                    },
+                    bizPlanCols: [
+                        { key: 'year', label: 'Год' }, { key: 'planNat', label: 'План продаж (натур.)' },
+                        { key: 'planMon', label: 'План продаж (денеж.)' }, { key: 'factNat', label: 'Факт (натур.)' },
+                        { key: 'factMon', label: 'Факт (денеж.)' }, { key: 'pct', label: 'Выполнение %' }
+                    ],
+                    bizPlanRows: [
+                        { year: '2022', planNat: '500 т', planMon: '400 000 000', factNat: '480 т', factMon: '385 000 000', pct: '96.3%' },
+                        { year: '2023', planNat: '600 т', planMon: '500 000 000', factNat: '570 т', factMon: '470 000 000', pct: '94.0%' },
+                        { year: '2024', planNat: '700 т', planMon: '600 000 000', factNat: '650 т', factMon: '540 000 000', pct: '90.0%' },
+                        { year: '2025', planNat: '800 т', planMon: '700 000 000', factNat: '', factMon: '', pct: '' },
+                        { year: '2026', planNat: '900 т', planMon: '800 000 000', factNat: '', factMon: '', pct: '' },
+                        { year: '2027', planNat: '1 000 т', planMon: '900 000 000', factNat: '', factMon: '', pct: '' },
+                        { year: '2028', planNat: '1 100 т', planMon: '1 000 000 000', factNat: '', factMon: '', pct: '' }
+                    ],
+                    projectLaunch: { planDate: '01.06.2024', factDate: '', reason: '' },
+                    collateralPropCols: [
+                        { key: 'type', label: 'Вид имущества' }, { key: 'address', label: 'Адрес' },
+                        { key: 'subsequent', label: 'Последующий залог' }, { key: 'value', label: 'Залоговая стоимость' },
+                        { key: 'coverage', label: 'Покрытие кредита' }
+                    ],
+                    collateralPropRows: [
+                        { type: 'Оборудование', address: 'г. Ташкент, ул. Буюк Ипак Йули, 45', subsequent: 'Нет', value: '450 000 000', coverage: '56.3%' }
+                    ],
+                    collateralNonPropCols: [
+                        { key: 'type', label: 'Вид поручительства' }, { key: 'name', label: 'ФИО/Наименование' },
+                        { key: 'currency', label: 'Валюта' }, { key: 'amount', label: 'Сумма' },
+                        { key: 'coverage', label: 'Покрытие' }
+                    ],
+                    collateralNonPropRows: [
+                        { type: 'Поручительство физ. лица', name: 'Алиев Б.К.', currency: 'UZS', amount: '400 000 000', coverage: '50.0%' }
+                    ]
+                });
+
+                // ═══════════════════════════════════════
+                // INVESTMENT-ONLY data (sections 14-20)
+                // ═══════════════════════════════════════
+                const inv = reactive({
+                    project: {
+                        goal: 'Модернизация текстильного производства с установкой автоматизированной линии прядения и ткачества для выпуска экспортоориентированной продукции',
+                        cost: '3 200 000 USD',
+                        address: 'г. Ташкент, Мирзо-Улугбекский р-н, ул. Буюк Ипак Йули, 45',
+                        launchDate: '15.03.2025', capacity: '3 500 тонн/год', jobs: '50',
+                        suppliers: 'Rieter AG (Швейцария), Picanol NV (Бельгия)',
+                        infrastructure: 'Да', investments: '3 200 000 USD', foreignPartners: 'Rieter AG'
+                    },
+                    disbursementCols: [
+                        { key: 'recipient', label: 'Получатель средств' }, { key: 'date', label: 'Дата выделения' },
+                        { key: 'amount', label: 'Сумма' }, { key: 'actDate', label: 'Дата акта целевого' }
+                    ],
+                    disbursementRows: [
+                        { recipient: 'Rieter AG', date: '20.04.2022', amount: '1 800 000 USD', actDate: '15.06.2022' },
+                        { recipient: 'Picanol NV', date: '15.07.2022', amount: '700 000 USD', actDate: '20.09.2022' }
+                    ],
+                    exportCols: [
+                        { key: 'indicator', label: 'Показатель' }, { key: 'y2023', label: '2023' },
+                        { key: 'y2024', label: '2024' }, { key: 'change', label: 'Изменение' }
+                    ],
+                    exportRows: [
+                        { indicator: 'Объём экспорта (тонн)', y2023: '320', y2024: '480', change: '+50.0%' },
+                        { indicator: 'Выручка от экспорта (USD)', y2023: '960 000', y2024: '1 520 000', change: '+58.3%' },
+                        { indicator: 'Доля экспорта в выручке', y2023: '28%', y2024: '35%', change: '+7 п.п.' }
+                    ],
+                    changesCols: [
+                        { key: 'type', label: 'Тип изменения' }, { key: 'count', label: 'Количество' }
+                    ],
+                    changesRows: [
+                        { type: 'График платежей', count: '0' }, { type: 'Обеспечение', count: '0' },
+                        { type: 'Цель кредита', count: '0' }, { type: 'Процентная ставка', count: '1' },
+                        { type: 'Валюта', count: '0' }, { type: 'Сумма', count: '0' }
+                    ],
+                    guarantor: {
+                        name: 'ООО "Текстиль Холдинг"', inn: '301234567', activity: 'Торговля текстилем',
+                        address: 'г. Ташкент, Юнусабадский р-н, ул. Амира Темура, 12', bank: 'УзПСБ', amount: '1 500 000 USD'
+                    },
+                    guarantorFinCols: [
+                        { key: 'indicator', label: 'Показатель' }, { key: 'value', label: 'Значение' }
+                    ],
+                    guarantorFinRows: [
+                        { indicator: 'Выручка (2024)', value: '5 200 000 000 UZS' },
+                        { indicator: 'Чистая прибыль (2024)', value: '680 000 000 UZS' },
+                        { indicator: 'Собственный капитал', value: '1 800 000 000 UZS' },
+                        { indicator: 'Коэффициент покрытия', value: '1.45' },
+                        { indicator: 'Коэффициент автономии', value: '0.52' }
+                    ],
+                    problems: { ko: '', debts: '', monitoring: '' },
+                    conclusion: ''
+                });
+
+                // ═══════════════════════════════════════
+                // Return
+                // ═══════════════════════════════════════
+                return {
+                    localNavItems, activeNav, onNav, switchVersion,
+                    pageTabs, selectPageTab, closePageTab, goBack,
+                    taskData, creditData, monitoringData, signals,
+                    docTree, docColumns, docRows,
+                    historyColumns, historyRows, commentColumns, commentRows,
+                    onAssign, onAssignReviewer, onCancel,
+                    actState, actData, createAct, generateDoc, deleteAct, onActSave,
+                    isTargetUse, isWorkingCapital, isInvestment,
+                    tu, wc, inv
+                };
+            }
+        });
+
+        UzComponents.registerAll(app);
+        app.mount('#app');
+    </script>
+</body>
+</html>

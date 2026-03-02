@@ -899,3 +899,34 @@ body {
     border: none;
     color: var(--color-text-secondary);
 }
+
+/* ─── Version toggle ─────────────────────────── */
+.version-toggle {
+    display: flex;
+    margin-left: auto;
+    border: 1px solid var(--color-border-field);
+    border-radius: var(--radius-btn);
+    overflow: hidden;
+    flex-shrink: 0;
+}
+.version-btn {
+    padding: 4px 14px;
+    font-size: var(--font-size-small);
+    font-weight: var(--font-weight-medium);
+    color: var(--color-text-secondary);
+    cursor: pointer;
+    background: var(--color-bg-page);
+    transition: background 0.15s, color 0.15s;
+    user-select: none;
+}
+.version-btn:not(:last-child) {
+    border-right: 1px solid var(--color-border-field);
+}
+.version-btn:hover:not(.active) {
+    background: var(--color-bg-btn-hover);
+}
+.version-btn.active {
+    background: var(--color-primary);
+    color: #ffffff;
+    cursor: default;
+}
